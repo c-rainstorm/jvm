@@ -1,12 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"jvm/pkg/constants"
+)
 
 func main() {
 	cmd := parseCmd()
 
 	if cmd.versionFlag {
-		fmt.Println("version 0.0.1")
+		fmt.Println(constants.Version)
 	} else if cmd.helpFlag || cmd.class == "" {
 		printUsage()
 	} else {
