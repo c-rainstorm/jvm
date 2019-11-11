@@ -2,9 +2,10 @@ package exception
 
 import (
 	"fmt"
-	"jvm/pkg/exception"
 	"strings"
 	"testing"
+
+	"jvm/pkg/exception"
 )
 
 func TestError(t *testing.T) {

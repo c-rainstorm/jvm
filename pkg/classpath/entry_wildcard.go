@@ -1,10 +1,11 @@
 package classpath
 
 import (
-	"jvm/pkg/constants"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"jvm/pkg/constants"
 )
 
 func newWildCardEntry(path string) CompositeEntry {

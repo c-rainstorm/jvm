@@ -1,8 +1,9 @@
 package classpath
 
 import (
-	"jvm/pkg/constants"
 	"strings"
+
+	"jvm/pkg/constants"
 )
 
 type Entry interface {

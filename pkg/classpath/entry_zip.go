@@ -3,8 +3,9 @@ package classpath
 import (
 	"archive/zip"
 	"io/ioutil"
-	"jvm/pkg/exception"
 	"path/filepath"
+
+	"jvm/pkg/exception"
 )
 
 type ZipEntry struct {

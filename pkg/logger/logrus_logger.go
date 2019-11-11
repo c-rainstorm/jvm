@@ -1,9 +1,10 @@
 package logger
 
 import (
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"jvm/pkg/logger/formatter"
-	"os"
 )
 
 func NewLogrusLogger() *logrus.Logger {
@@ -24,4 +25,3 @@ func NewLogrusLogger() *logrus.Logger {
 
 	return log
 }
-

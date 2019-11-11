@@ -1,10 +1,11 @@
 package log
 
 import (
+	"testing"
+
 	"github.com/sirupsen/logrus"
 	"jvm/pkg/exception"
 	"jvm/pkg/logger"
-	"testing"
 )
 
 var log = logger.NewLogrusLogger()

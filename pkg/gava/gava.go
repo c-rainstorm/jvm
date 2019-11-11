@@ -1,10 +1,11 @@
 package gava
 
 import (
+	"strings"
+
 	"jvm/pkg/classpath"
 	"jvm/pkg/constants"
 	"jvm/pkg/logger"
-	"strings"
 )
 
 var log = logger.NewLogrusLogger()

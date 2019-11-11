@@ -1,11 +1,12 @@
 package classpath
 
 import (
-	"jvm/pkg/constants"
-	"jvm/pkg/gava"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"jvm/pkg/constants"
+	"jvm/pkg/gava"
 )
 
 func TestDirEntry(t *testing.T) {

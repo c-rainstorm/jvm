@@ -1,12 +1,13 @@
 package gava
 
 import (
-	"jvm/pkg/constants"
-	"jvm/test"
 	"os"
 	"os/exec"
 	"strings"
 	"testing"
+
+	"jvm/pkg/constants"
+	"jvm/test"
 )
 
 func TestGavaVersion(t *testing.T) {

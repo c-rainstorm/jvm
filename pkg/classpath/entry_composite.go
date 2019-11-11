@@ -1,9 +1,10 @@
 package classpath
 
 import (
+	"strings"
+
 	"jvm/pkg/constants"
 	"jvm/pkg/exception"
-	"strings"
 )
 
 type CompositeEntry []Entry

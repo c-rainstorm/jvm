@@ -2,9 +2,10 @@ package formatter
 
 import (
 	"bytes"
+	"strings"
+
 	"github.com/sirupsen/logrus"
 	"jvm/pkg/constants"
-	"strings"
 )
 
 type LogrusFormatter struct {

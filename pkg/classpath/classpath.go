@@ -1,10 +1,11 @@
 package classpath
 
 import (
-	"jvm/pkg/constants"
-	"jvm/pkg/logger"
 	"os"
 	"path/filepath"
+
+	"jvm/pkg/constants"
+	"jvm/pkg/logger"
 )
 
 var log = logger.NewLogrusLogger()
