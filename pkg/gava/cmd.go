@@ -1,8 +1,8 @@
-package main
+package gava
 
 import (
+	"encoding/json"
 	"flag"
-	"fmt"
 	"os"
 )
 
@@ -24,7 +24,7 @@ func parseCmd() *Cmd {
 	flag.BoolVar(&cmd.versionFlag, "version", false, "print version and exit")
 	flag.StringVar(&cmd.cpOption, "classpath", "", "classpath")
 	flag.StringVar(&cmd.cpOption, "cp", "", "classpath")
-	flag.StringVar(&cmd.XjreOption, "jre", "", "path to jre")
+	flag.StringVar(&cmd.XjreOption, "Xjre", "", "path to jre")
 	flag.Parse()
 
 	args := flag.Args()
@@ -37,5 +37,13 @@ func parseCmd() *Cmd {
 }
 
 func printUsage() {
-	fmt.Printf("Usage: %s [-options] class [args...]\n", os.Args[0])
+	log.Infof("Usage: %s [-options] class [args...]\n", os.Args[0])
+}
+
+func (this *Cmd) String() string {
+	jsonBytes, err := json.Marshal(this)
+	if err != nil {
+		log.Errorln(err)
+	}
+	return string(jsonBytes)
 }

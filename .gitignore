@@ -117,4 +117,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-
+# class 文件存放路径
+test/data/class/*
