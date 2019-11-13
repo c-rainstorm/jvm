@@ -6,22 +6,22 @@ import (
 	"strings"
 	"testing"
 
-	"jvm/pkg/constants"
+	"jvm/pkg/global"
 	"jvm/test"
 )
 
 func TestGavaVersion(t *testing.T) {
-	cmd := exec.Command(constants.Gava, "-version")
+	cmd := exec.Command(global.Gava, "-version")
 
 	test.CommonTestCommand(t, cmd, func(output string) {
-		if !strings.HasPrefix(output, constants.Version) {
+		if !strings.HasPrefix(output, global.Version) {
 			t.Error("版本信息获取失败")
 		}
 	})
 }
 
 func TestGavaHelp(t *testing.T) {
-	cmd := exec.Command(constants.Gava, "-help")
+	cmd := exec.Command(global.Gava, "-help")
 
 	test.CommonTestCommand(t, cmd, func(output string) {
 		if !strings.HasPrefix(output, "Usage") {
@@ -31,7 +31,7 @@ func TestGavaHelp(t *testing.T) {
 }
 
 func TestStartJVM(t *testing.T) {
-	cmd := exec.Command(constants.Gava, "-cp", os.Getenv("CLASSPATH"), "java.lang.String", "arg1", "arg2")
+	cmd := exec.Command(global.Gava, "-cp", os.Getenv("CLASSPATH"), "java.lang.String", "arg1", "arg2")
 
 	test.CommonTestCommand(t, cmd, func(output string) {
 		if !strings.Contains(output, "java.lang.String") ||

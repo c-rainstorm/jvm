@@ -3,8 +3,9 @@ package gava
 import (
 	"strings"
 
+	"jvm/pkg/classparse"
 	"jvm/pkg/classpath"
-	"jvm/pkg/constants"
+	"jvm/pkg/global"
 	"jvm/pkg/logger"
 )
 
@@ -14,8 +15,8 @@ func Main() {
 	cmd := parseCmd()
 
 	if cmd.versionFlag {
-		log.Info(constants.Version)
-	} else if cmd.helpFlag || cmd.class == constants.EmptyString {
+		log.Info(global.Version)
+	} else if cmd.helpFlag || cmd.class == global.EmptyString {
 		printUsage()
 	} else {
 		startJVM(cmd)
@@ -24,10 +25,14 @@ func Main() {
 
 func startJVM(cmd *Cmd) {
 	cp := classpath.Parse(cmd.XjreOption, cmd.cpOption)
-	log.Infof("classpath:%s cmd:%v", cp, cmd)
+	if global.Verbose {
+		log.Info(cmd)
+	}
 
-	classname := strings.Replace(cmd.class, constants.Dot, constants.Slash, -1)
-	log.Infof("classname: %s", classname)
+	classname := strings.Replace(cmd.class, global.Dot, global.Slash, -1)
+	if global.Verbose {
+		log.Infof("classname: %s", classname)
+	}
 
 	classData, _, err := cp.ReadClass(classname)
 	if err != nil {
@@ -35,5 +40,9 @@ func startJVM(cmd *Cmd) {
 		return
 	}
 
-	log.Infof("class data: %v", classData)
+	classFile := classparse.Parse(classData)
+
+	if global.Verbose {
+		log.Infof("class data: %s", classFile)
+	}
 }

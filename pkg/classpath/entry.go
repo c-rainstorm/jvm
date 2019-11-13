@@ -3,7 +3,7 @@ package classpath
 import (
 	"strings"
 
-	"jvm/pkg/constants"
+	"jvm/pkg/global"
 )
 
 type Entry interface {
@@ -14,17 +14,17 @@ type Entry interface {
 }
 
 func newEntry(path string) Entry {
-	if strings.Contains(path, constants.PathListSeparator) {
+	if strings.Contains(path, global.PathListSeparator) {
 		return newCompositeEntry(path)
 	}
 
-	if strings.HasSuffix(path, constants.WildCard) {
+	if strings.HasSuffix(path, global.WildCard) {
 		return newWildCardEntry(path)
 	}
 
 	lowerCasePath := strings.ToLower(path)
-	if strings.HasSuffix(lowerCasePath, constants.SuffixJar) ||
-		strings.HasSuffix(lowerCasePath, constants.SuffixZip) {
+	if strings.HasSuffix(lowerCasePath, global.SuffixJar) ||
+		strings.HasSuffix(lowerCasePath, global.SuffixZip) {
 		return newZipEntry(path)
 	}
 

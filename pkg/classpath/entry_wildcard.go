@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"jvm/pkg/constants"
+	"jvm/pkg/global"
 )
 
 func newWildCardEntry(path string) CompositeEntry {
@@ -28,7 +28,7 @@ func newWildCardEntry(path string) CompositeEntry {
 		}
 
 		lowerCasePath := strings.ToLower(path)
-		if strings.HasSuffix(lowerCasePath, constants.SuffixJar) {
+		if strings.HasSuffix(lowerCasePath, global.SuffixJar) {
 			jarEntry := newZipEntry(path)
 			compositeEntry = append(compositeEntry, jarEntry)
 		}

@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"jvm/pkg/constants"
+	"jvm/pkg/global"
 	"jvm/pkg/logger"
 )
 
@@ -20,16 +20,16 @@ func (this *Classpath) parseBootAndExtClasspath(jreOption string) {
 	jrePath := getJreDir(jreOption)
 
 	// jre/lib/*
-	jreLibPath := filepath.Join(jrePath, "lib", constants.WildCard)
+	jreLibPath := filepath.Join(jrePath, "lib", global.WildCard)
 	this.bootClasspath = newEntry(jreLibPath)
 
 	// jre/lib/ext/*
-	jreExtLibPath := filepath.Join(jrePath, "lib", "ext", constants.WildCard)
+	jreExtLibPath := filepath.Join(jrePath, "lib", "ext", global.WildCard)
 	this.extClasspath = newEntry(jreExtLibPath)
 }
 
 func getJreDir(jreOption string) string {
-	if jreOption != constants.EmptyString && exists(jreOption) {
+	if jreOption != global.EmptyString && exists(jreOption) {
 		return jreOption
 	}
 
@@ -37,7 +37,7 @@ func getJreDir(jreOption string) string {
 		return "./jre"
 	}
 
-	if javaHome := os.Getenv(constants.JavaHome); javaHome != constants.EmptyString {
+	if javaHome := os.Getenv(global.JavaHome); javaHome != global.EmptyString {
 		return filepath.Join(javaHome, "jre")
 	}
 
@@ -55,27 +55,31 @@ func exists(path string) bool {
 }
 
 func (this *Classpath) parseUserClasspath(cpOption string) {
-	if cpOption == constants.EmptyString {
-		cpOption = constants.Dot
+	if cpOption == global.EmptyString {
+		cpOption = global.Dot
 	}
 
 	this.userClasspath = newEntry(cpOption)
 }
 
 func (this *Classpath) ReadClass(classname string) ([]byte, Entry, error) {
-	classname = classname + constants.SuffixClass
+	classname = classname + global.SuffixClass
 
 	if dataBytes, entry, err := this.bootClasspath.readClass(classname); err == nil {
 		return dataBytes, entry, err
 	}
 
-	log.Info("bootClasspath not found")
+	if global.Verbose {
+		log.Info("bootClasspath not found")
+	}
 
 	if dataBytes, entry, err := this.extClasspath.readClass(classname); err == nil {
 		return dataBytes, entry, err
 	}
 
-	log.Info("extClasspath not found")
+	if global.Verbose {
+		log.Info("extClasspath not found")
+	}
 
 	return this.userClasspath.readClass(classname)
 }

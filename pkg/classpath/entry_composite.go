@@ -3,15 +3,15 @@ package classpath
 import (
 	"strings"
 
-	"jvm/pkg/constants"
 	"jvm/pkg/exception"
+	"jvm/pkg/global"
 )
 
 type CompositeEntry []Entry
 
 func newCompositeEntry(pathList string) CompositeEntry {
 	var compositeEntry []Entry
-	for _, path := range strings.Split(pathList, constants.PathListSeparator) {
+	for _, path := range strings.Split(pathList, global.PathListSeparator) {
 		entry := newEntry(path)
 		compositeEntry = append(compositeEntry, entry)
 	}
@@ -36,5 +36,5 @@ func (self CompositeEntry) String() string {
 		strs[i] = entry.String()
 	}
 
-	return strings.Join(strs, constants.PathListSeparator)
+	return strings.Join(strs, global.PathListSeparator)
 }

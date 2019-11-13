@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
-	"jvm/pkg/constants"
+	"jvm/pkg/global"
 )
 
 type LogrusFormatter struct {
@@ -19,7 +19,7 @@ var DefaultLogrusFormatter = LogrusFormatter{
 	TimeFormatter:  "2006-01-02 15:04:05",
 	FieldPrefix:    "[",
 	FieldSuffix:    "]",
-	FieldSeparator: constants.Space,
+	FieldSeparator: global.Space,
 }
 
 func NewLogrusFormatter() *LogrusFormatter {

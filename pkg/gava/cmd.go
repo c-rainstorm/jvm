@@ -1,12 +1,15 @@
 package gava
 
 import (
-	"encoding/json"
 	"flag"
+	"fmt"
 	"os"
+
+	"jvm/pkg/global"
 )
 
 type Cmd struct {
+	verboseFlag bool
 	helpFlag    bool
 	versionFlag bool
 	cpOption    string
@@ -19,6 +22,8 @@ func parseCmd() *Cmd {
 	cmd := &Cmd{}
 
 	flag.Usage = printUsage
+	flag.BoolVar(&cmd.verboseFlag, "verbose", false, "print detail message")
+	flag.BoolVar(&cmd.verboseFlag, "v", false, "print detail message")
 	flag.BoolVar(&cmd.helpFlag, "help", false, "print help message")
 	flag.BoolVar(&cmd.helpFlag, "?", false, "print help message")
 	flag.BoolVar(&cmd.versionFlag, "version", false, "print version and exit")
@@ -33,6 +38,8 @@ func parseCmd() *Cmd {
 		cmd.args = args[1:]
 	}
 
+	global.Verbose = cmd.verboseFlag
+
 	return cmd
 }
 
@@ -41,9 +48,6 @@ func printUsage() {
 }
 
 func (this *Cmd) String() string {
-	jsonBytes, err := json.Marshal(this)
-	if err != nil {
-		log.Errorln(err)
-	}
-	return string(jsonBytes)
+	return fmt.Sprintf("Cmd{verboseFlag: %v, helpFlag: %v, versionFlag: %v, cpOption: %s, XjreOption: %s, class: %s, args: %s}",
+		this.verboseFlag, this.helpFlag, this.versionFlag, this.cpOption, this.XjreOption, this.class, this.args)
 }
