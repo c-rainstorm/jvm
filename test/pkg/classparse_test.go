@@ -8,7 +8,7 @@ import (
 	"jvm/pkg/global"
 )
 
-func TestMagicParse(t *testing.T) {
+func TestClassParse(t *testing.T) {
 	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
 	os.Args = []string{
 		global.Gava,

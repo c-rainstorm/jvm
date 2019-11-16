@@ -33,22 +33,6 @@ type ClassFile struct {
 	attributes   []AttributeInfo
 }
 
-func (this *ClassFile) read(reader *ClassReader) *ClassFile {
-	this.readMagic(reader)
-	return this
-}
-
-func (this *ClassFile) readMagic(reader *ClassReader) {
-	this.magic = reader.readUint32()
-	if global.Verbose {
-		log.Infof("magic parsed: %v", this.Magic())
-	}
-	if this.magic != global.JavaClassFileMagic {
-		log.Panicf("java.lang.ClassFormatError: magic! expected: %s, actual: %s",
-			global.JavaClassFileMagic, this.magic)
-	}
-}
-
 func Parse(classBytes []byte) *ClassFile {
 	classReader := &ClassReader{
 		data:  classBytes,
@@ -64,10 +48,51 @@ func newClassFile(reader *ClassReader) *ClassFile {
 	return classFile.read(reader)
 }
 
+func (this *ClassFile) read(reader *ClassReader) *ClassFile {
+	this.readMagic(reader)
+	this.readVersion(reader)
+	return this
+}
+
+func (this *ClassFile) readMagic(reader *ClassReader) {
+	this.magic = reader.readUint32()
+	if global.Verbose {
+		log.Infof("parsed magic: %v", this.Magic())
+	}
+	if this.magic != global.JavaClassFileMagic {
+		log.Panicf("java.lang.ClassFormatError: magic! expected: %s, actual: %s",
+			global.JavaClassFileMagic, this.magic)
+	}
+}
+
+func (this *ClassFile) readVersion(reader *ClassReader) {
+	this.minorVersion = reader.readUnit16()
+	this.majorVersion = reader.readUnit16()
+	if global.Verbose {
+		log.Infof("parsed version: %v", this.Version())
+	}
+
+	switch this.majorVersion {
+	case 45:
+		return
+	case 46, 47, 48, 49, 50, 51, 52:
+		if this.minorVersion == 0 {
+			return
+		}
+	}
+
+	log.Panic("java.lang.UnsupportedClassVersionError!")
+}
+
 func (this *ClassFile) String() string {
-	return fmt.Sprintf("ClassFile{magic: %s}", this.Magic())
+	return fmt.Sprintf("ClassFile{magic: %s, version: %s}",
+		this.Magic(), this.Version())
 }
 
 func (this *ClassFile) Magic() string {
 	return fmt.Sprintf("0x%X", this.magic)
+}
+
+func (this *ClassFile) Version() interface{} {
+	return fmt.Sprintf("%v.%v", this.majorVersion, this.minorVersion)
 }

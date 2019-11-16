@@ -22,21 +22,21 @@ func (this *ClassReader) readUint8() uint8 {
 
 func (this *ClassReader) readUnit16() uint16 {
 	byteSize := uint32(2)
-	val := binary.BigEndian.Uint16(this.data[this.index : this.index+byteSize : byteSize])
+	val := binary.BigEndian.Uint16(this.data[this.index : this.index+byteSize])
 	this.index += byteSize
 	return val
 }
 
 func (this *ClassReader) readUint32() uint32 {
 	byteSize := uint32(4)
-	val := binary.BigEndian.Uint32(this.data[this.index : this.index+byteSize : byteSize])
+	val := binary.BigEndian.Uint32(this.data[this.index : this.index+byteSize])
 	this.index += byteSize
 	return val
 }
 
 func (this *ClassReader) readUint64() uint64 {
 	byteSize := uint32(8)
-	val := binary.BigEndian.Uint64(this.data[this.index : this.index+byteSize : byteSize])
+	val := binary.BigEndian.Uint64(this.data[this.index : this.index+byteSize])
 	this.index += byteSize
 	return val
 }
