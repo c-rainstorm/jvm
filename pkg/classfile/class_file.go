@@ -1,4 +1,4 @@
-package classparse
+package classfile
 
 import (
 	"fmt"
@@ -8,9 +8,6 @@ import (
 )
 
 var log = logger.NewLogrusLogger()
-
-type ConstantPool struct {
-}
 
 type MemberInfo struct {
 }
@@ -33,6 +30,19 @@ type ClassFile struct {
 	attributes   []AttributeInfo
 }
 
+func (this *ClassFile) String() string {
+	return fmt.Sprintf("ClassFile{magic: %s, version: %s, constant pool: %v}",
+		this.Magic(), this.Version(), this.constantPool)
+}
+
+func (this *ClassFile) Magic() string {
+	return fmt.Sprintf("0x%X", this.magic)
+}
+
+func (this *ClassFile) Version() interface{} {
+	return fmt.Sprintf("%v.%v", this.majorVersion, this.minorVersion)
+}
+
 func Parse(classBytes []byte) *ClassFile {
 	classReader := &ClassReader{
 		data:  classBytes,
@@ -51,6 +61,7 @@ func newClassFile(reader *ClassReader) *ClassFile {
 func (this *ClassFile) read(reader *ClassReader) *ClassFile {
 	this.readMagic(reader)
 	this.readVersion(reader)
+	this.constantPool = readConstantPool(reader)
 	return this
 }
 
@@ -82,17 +93,4 @@ func (this *ClassFile) readVersion(reader *ClassReader) {
 	}
 
 	log.Panic("java.lang.UnsupportedClassVersionError!")
-}
-
-func (this *ClassFile) String() string {
-	return fmt.Sprintf("ClassFile{magic: %s, version: %s}",
-		this.Magic(), this.Version())
-}
-
-func (this *ClassFile) Magic() string {
-	return fmt.Sprintf("0x%X", this.magic)
-}
-
-func (this *ClassFile) Version() interface{} {
-	return fmt.Sprintf("%v.%v", this.majorVersion, this.minorVersion)
 }

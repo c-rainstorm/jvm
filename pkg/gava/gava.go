@@ -3,7 +3,7 @@ package gava
 import (
 	"strings"
 
-	"jvm/pkg/classparse"
+	"jvm/pkg/classfile"
 	"jvm/pkg/classpath"
 	"jvm/pkg/global"
 	"jvm/pkg/logger"
@@ -40,7 +40,7 @@ func startJVM(cmd *Cmd) {
 		return
 	}
 
-	classFile := classparse.Parse(classData)
+	classFile := classfile.Parse(classData)
 
 	if global.Verbose {
 		log.Infof("class data: %s", classFile)
