@@ -1,6 +1,7 @@
 package me.rainstorm.jvm;
 
-public final class ClassFileParseTest {
+public final class ClassFileParseTest implements Interface1, Interface2 {
+    @Anno
     public static final boolean FLAG = true;
     public static final byte BYTE = 123;
     public static final char X = 'X';
@@ -12,5 +13,8 @@ public final class ClassFileParseTest {
 
     public static void main(String[] args) throws RuntimeException {
         System.out.println("Hello world!");
+        ClassFileParseTest test = new ClassFileParseTest();
+        test.sayHi();
+        test.saySomething();
     }
 }

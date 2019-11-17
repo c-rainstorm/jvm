@@ -41,7 +41,7 @@ func (this *ClassReader) readUint64() uint64 {
 	return val
 }
 
-func (this *ClassReader) readUint16s(num uint32) []uint16 {
+func (this *ClassReader) readUint16s(num uint16) []uint16 {
 	s := make([]uint16, num)
 	for i := range s {
 		s[i] = this.readUnit16()

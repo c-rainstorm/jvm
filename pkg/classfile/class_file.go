@@ -11,14 +11,26 @@ import (
 var log = logger.NewLogrusLogger()
 
 const (
-	acc_public     uint16 = 0x0001
-	acc_final      uint16 = 0x0010
-	acc_super      uint16 = 0x0020
-	acc_interface  uint16 = 0x0200
-	acc_abstract   uint16 = 0x0400
-	acc_synthetic  uint16 = 0x1000
-	acc_annotation uint16 = 0x2000
-	acc_enum       uint16 = 0x4000
+	accClassPublic     uint16 = 0x0001
+	accClassFinal      uint16 = 0x0010
+	accClassSuper      uint16 = 0x0020
+	accClassInterface  uint16 = 0x0200
+	accClassAbstract   uint16 = 0x0400
+	accClassSynthetic  uint16 = 0x1000
+	accClassAnnotation uint16 = 0x2000
+	accClassEnum       uint16 = 0x4000
+)
+
+const (
+	accFieldPublic    uint16 = 0x0001
+	accFieldPrivate   uint16 = 0x0002
+	accFieldProtected uint16 = 0x0004
+	accFieldStatic    uint16 = 0x0008
+	accFieldFinal     uint16 = 0x0010
+	accFieldVolatile  uint16 = 0x0040
+	accFieldTransient uint16 = 0x0080
+	accFieldSynthetic uint16 = 0x1000
+	accFieldEnum      uint16 = 0x4000
 )
 
 type MemberInfo struct {
@@ -64,6 +76,7 @@ func (this *ClassFile) read(reader *ClassReader) *ClassFile {
 	this.accessFlags = reader.readUnit16()
 	this.thisClass = reader.readUnit16()
 	this.superClass = reader.readUnit16()
+	this.interfaces = reader.readUint16s(reader.readUnit16())
 	return this
 }
 
@@ -105,6 +118,7 @@ func (this *ClassFile) String() string {
 	classFileInfo["thisClass"] = this.ThisClass()
 	classFileInfo["superClass"] = this.SuperClass()
 	classFileInfo["constant pool"] = this.constantPool.String()
+	classFileInfo["interfaces"] = this.Interfaces()
 	return fmt.Sprintf("ClassFile%v", classFileInfo)
 }
 
@@ -118,19 +132,19 @@ func (this *ClassFile) Version() string {
 
 func (this *ClassFile) AccessFlag() string {
 	builder := strings.Builder{}
-	builder.WriteString(this.checkAccessFlag(acc_public, global.KeywordPublic))
-	builder.WriteString(this.checkAccessFlag(acc_final, global.KeywordFinal))
-	builder.WriteString(this.checkAccessFlag(acc_abstract, global.KeywordAbstract))
-	if acc_interface&this.accessFlags != 0 {
-		if acc_annotation&this.accessFlags != 0 {
+	builder.WriteString(this.checkAccessFlag(accClassPublic, global.KeywordPublic))
+	builder.WriteString(this.checkAccessFlag(accClassFinal, global.KeywordFinal))
+	builder.WriteString(this.checkAccessFlag(accClassAbstract, global.KeywordAbstract))
+	if accClassInterface&this.accessFlags != 0 {
+		if accClassAnnotation&this.accessFlags != 0 {
 			builder.WriteString(global.KeywordAnnotation)
 		} else {
 			builder.WriteString(global.KeywordInterface)
 		}
 		builder.WriteString(global.Space)
 	}
-	builder.WriteString(this.checkAccessFlag(acc_enum, global.KeywordEnum))
-	builder.WriteString(this.checkAccessFlag(acc_synthetic, global.AccGenerated))
+	builder.WriteString(this.checkAccessFlag(accClassEnum, global.KeywordEnum))
+	builder.WriteString(this.checkAccessFlag(accClassSynthetic, global.AccGenerated))
 
 	return builder.String()
 }
@@ -148,4 +162,18 @@ func (this *ClassFile) ThisClass() string {
 
 func (this *ClassFile) SuperClass() string {
 	return fmt.Sprintf("%v", this.constantPool[this.superClass])
+}
+
+func (this *ClassFile) Interfaces() string {
+	builder := strings.Builder{}
+	builder.WriteString("{")
+	length := len(this.interfaces)
+	for i := 0; i < length; i++ {
+		constantInfo := this.constantPool[this.interfaces[i]]
+
+		builder.WriteString(strings.Join([]string{fmt.Sprintf("%v", constantInfo), ","}, ""))
+	}
+	builder.WriteString("}")
+
+	return builder.String()
 }
