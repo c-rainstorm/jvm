@@ -101,7 +101,7 @@ func newConstantInfo(tag uint8, cp ConstantPool) ConstantInfo {
 
 func (this ConstantPool) String() string {
 	builder := strings.Builder{}
-	builder.WriteString("ConstantPool{")
+	builder.WriteString("ConstantPool{\n")
 	length := len(this)
 	for i := 1; i < length; i++ {
 		constantInfo := this[i]

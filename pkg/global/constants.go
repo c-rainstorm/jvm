@@ -25,3 +25,12 @@ const SuffixClass string = ".class"
 const JavaHome string = "JAVA_HOME"
 
 const JavaClassFileMagic uint32 = 0xCAFEBABE
+
+const KeywordPublic string = "public"
+const KeywordAbstract string = "abstract"
+const KeywordFinal string = "final"
+const KeywordInterface string = "interface"
+const KeywordAnnotation string = "@interface"
+const KeywordEnum string = "enum"
+const KeywordStatic string = "static"
+const AccGenerated string = "generated"

@@ -1,6 +1,6 @@
 package me.rainstorm.jvm;
 
-public class ClassFileParseTest {
+public final class ClassFileParseTest {
     public static final boolean FLAG = true;
     public static final byte BYTE = 123;
     public static final char X = 'X';
