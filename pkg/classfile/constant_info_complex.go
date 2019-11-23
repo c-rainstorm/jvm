@@ -41,6 +41,10 @@ type ConstantNameAndTypeRefInfo struct {
 	descriptorIndex uint16
 }
 
+func (this *ConstantNameAndTypeRefInfo) Val() interface{} {
+	panic("implement me")
+}
+
 func (this *ConstantNameAndTypeRefInfo) String() string {
 	return fmt.Sprintf("{ConstantNameAndTypeRefInfo: {name: %v, descriptor: %v}}",
 		this.cp[this.nameIndex], this.cp[this.descriptorIndex])
@@ -57,6 +61,10 @@ type ConstantFieldRefInfo struct {
 	ConstantMemberRefInfo
 }
 
+func (this *ConstantFieldRefInfo) Val() interface{} {
+	panic("implement me")
+}
+
 func (this *ConstantFieldRefInfo) String() string {
 	return fmt.Sprintf("{ConstantFieldRefInfo: %v}", this.ConstantMemberRefInfo.String())
 }
@@ -71,6 +79,10 @@ type ConstantMethodRefInfo struct {
 	ConstantMemberRefInfo
 }
 
+func (this *ConstantMethodRefInfo) Val() interface{} {
+	panic("implement me")
+}
+
 func (this *ConstantMethodRefInfo) String() string {
 	return fmt.Sprintf("{ConstantMethodRefInfo: %v}", this.ConstantMemberRefInfo.String())
 }
@@ -83,6 +95,10 @@ func (this *ConstantMethodRefInfo) read(reader *ClassReader) {
 
 type ConstantInterfaceMethodRefInfo struct {
 	ConstantMemberRefInfo
+}
+
+func (this *ConstantInterfaceMethodRefInfo) Val() interface{} {
+	panic("implement me")
 }
 
 func (this *ConstantInterfaceMethodRefInfo) String() string {

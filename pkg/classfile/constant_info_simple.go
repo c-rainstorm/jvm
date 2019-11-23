@@ -13,6 +13,10 @@ type ConstantIntegerInfo struct {
 	val int32
 }
 
+func (this *ConstantIntegerInfo) Val() interface{} {
+	return this.val
+}
+
 func (this *ConstantIntegerInfo) String() string {
 	return fmt.Sprintf("{ConstantIntegerInfo: %v}", this.val)
 }
@@ -30,6 +34,10 @@ type ConstantLongInfo struct {
 	val int64
 }
 
+func (this *ConstantLongInfo) Val() interface{} {
+	return this.val
+}
+
 func (this *ConstantLongInfo) String() string {
 	return fmt.Sprintf("{ConstantLongInfo: %v}", this.val)
 }
@@ -45,6 +53,10 @@ func (this *ConstantLongInfo) read(reader *ClassReader) {
 
 type ConstantFloatInfo struct {
 	val float32
+}
+
+func (this *ConstantFloatInfo) Val() interface{} {
+	return this.val
 }
 
 func (this *ConstantFloatInfo) String() string {
@@ -65,6 +77,10 @@ type ConstantDoubleInfo struct {
 	val float64
 }
 
+func (this *ConstantDoubleInfo) Val() interface{} {
+	return this.val
+}
+
 func (this *ConstantDoubleInfo) String() string {
 	return fmt.Sprintf("{ConstantDoubleInfo: %v}", this.val)
 }
@@ -83,13 +99,17 @@ type ConstantUtf8Info struct {
 	val string
 }
 
+func (this *ConstantUtf8Info) Val() interface{} {
+	return this.val
+}
+
 func (this *ConstantUtf8Info) String() string {
 	return fmt.Sprintf("{ConstantUtf8Info: %v}", this.val)
 }
 
 func (this *ConstantUtf8Info) read(reader *ClassReader) {
 	length := reader.readUnit16()
-	this.val = string(reader.readBytes(length))
+	this.val = string(reader.readBytes(uint32(length)))
 	if global.Verbose {
 		log.Infof("parsed utf8 constant: %v", this.val)
 	}
@@ -100,6 +120,10 @@ func (this *ConstantUtf8Info) read(reader *ClassReader) {
 type ConstantStringInfo struct {
 	cp    ConstantPool
 	index uint16
+}
+
+func (this *ConstantStringInfo) Val() interface{} {
+	return this.cp[this.index].Val()
 }
 
 func (this *ConstantStringInfo) String() string {
@@ -115,6 +139,10 @@ func (this *ConstantStringInfo) read(reader *ClassReader) {
 type ConstantClassInfo struct {
 	cp    ConstantPool
 	index uint16
+}
+
+func (this *ConstantClassInfo) Val() interface{} {
+	return this.cp[this.index].Val()
 }
 
 func (this *ConstantClassInfo) String() string {

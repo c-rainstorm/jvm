@@ -21,24 +21,6 @@ const (
 	accClassEnum       uint16 = 0x4000
 )
 
-const (
-	accFieldPublic    uint16 = 0x0001
-	accFieldPrivate   uint16 = 0x0002
-	accFieldProtected uint16 = 0x0004
-	accFieldStatic    uint16 = 0x0008
-	accFieldFinal     uint16 = 0x0010
-	accFieldVolatile  uint16 = 0x0040
-	accFieldTransient uint16 = 0x0080
-	accFieldSynthetic uint16 = 0x1000
-	accFieldEnum      uint16 = 0x4000
-)
-
-type MemberInfo struct {
-}
-
-type AttributeInfo struct {
-}
-
 type ClassFile struct {
 	// 魔数，class 文件固定 0xCAFEBABE
 	magic        uint32
@@ -49,8 +31,8 @@ type ClassFile struct {
 	thisClass    uint16
 	superClass   uint16
 	interfaces   []uint16
-	fields       []*MemberInfo
-	methods      []*MemberInfo
+	fields       []*FieldMemberInfo
+	methods      []*MethodMemberInfo
 	attributes   []AttributeInfo
 }
 
@@ -72,11 +54,14 @@ func newClassFile(reader *ClassReader) *ClassFile {
 func (this *ClassFile) read(reader *ClassReader) *ClassFile {
 	this.readMagic(reader)
 	this.readVersion(reader)
-	this.constantPool = readConstantPool(reader)
+	this.readConstantPool(reader)
 	this.accessFlags = reader.readUnit16()
 	this.thisClass = reader.readUnit16()
 	this.superClass = reader.readUnit16()
 	this.interfaces = reader.readUint16s(reader.readUnit16())
+	this.readFields(reader)
+	this.readMethods(reader)
+	this.attributes = readAttributes(reader, this.constantPool)
 	return this
 }
 
@@ -110,6 +95,28 @@ func (this *ClassFile) readVersion(reader *ClassReader) {
 	log.Panic("java.lang.UnsupportedClassVersionError!")
 }
 
+func (this *ClassFile) readConstantPool(reader *ClassReader) {
+	this.constantPool = readConstantPool(reader)
+}
+
+func (this *ClassFile) readFields(reader *ClassReader) {
+	memberCount := reader.readUnit16()
+	this.fields = make([]*FieldMemberInfo, memberCount)
+	for i := range this.fields {
+		this.fields[i] = &FieldMemberInfo{MemberInfo{}}
+		this.fields[i].read(reader, this.constantPool)
+	}
+}
+
+func (this *ClassFile) readMethods(reader *ClassReader) {
+	memberCount := reader.readUnit16()
+	this.methods = make([]*MethodMemberInfo, memberCount)
+	for i := range this.methods {
+		this.methods[i] = &MethodMemberInfo{MemberInfo{}}
+		this.methods[i].read(reader, this.constantPool)
+	}
+}
+
 func (this *ClassFile) String() string {
 	var classFileInfo = make(map[string]string)
 	classFileInfo["magic"] = this.Magic()
@@ -119,6 +126,8 @@ func (this *ClassFile) String() string {
 	classFileInfo["superClass"] = this.SuperClass()
 	classFileInfo["constant pool"] = this.constantPool.String()
 	classFileInfo["interfaces"] = this.Interfaces()
+	classFileInfo["fields"] = this.Fields()
+	classFileInfo["methods"] = this.Methods()
 	return fmt.Sprintf("ClassFile%v", classFileInfo)
 }
 
@@ -173,6 +182,32 @@ func (this *ClassFile) Interfaces() string {
 
 		builder.WriteString(strings.Join([]string{fmt.Sprintf("%v", constantInfo), ","}, ""))
 	}
+	builder.WriteString("}")
+
+	return builder.String()
+}
+
+func (this *ClassFile) Fields() string {
+	builder := strings.Builder{}
+	builder.WriteString("Fields{")
+
+	for i := range this.fields {
+		builder.WriteString(strings.Join([]string{fmt.Sprintf("%v", this.fields[i]), ",\n"}, ""))
+	}
+
+	builder.WriteString("}")
+
+	return builder.String()
+}
+
+func (this *ClassFile) Methods() string {
+	builder := strings.Builder{}
+	builder.WriteString("Methods{")
+
+	for i := range this.methods {
+		builder.WriteString(strings.Join([]string{fmt.Sprintf("%v", this.methods[i]), ",\n"}, ""))
+	}
+
 	builder.WriteString("}")
 
 	return builder.String()

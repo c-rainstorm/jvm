@@ -29,6 +29,8 @@ type ConstantPool []ConstantInfo
 
 type ConstantInfo interface {
 	read(reader *ClassReader)
+
+	Val() interface{}
 }
 
 func readConstantPool(reader *ClassReader) ConstantPool {

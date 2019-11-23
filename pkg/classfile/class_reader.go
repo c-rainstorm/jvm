@@ -4,7 +4,7 @@ import "encoding/binary"
 
 type ClassReader struct {
 	data  []byte
-	index uint16
+	index uint32
 }
 
 func NewClassReader(data []byte) *ClassReader {
@@ -21,21 +21,21 @@ func (this *ClassReader) readUint8() uint8 {
 }
 
 func (this *ClassReader) readUnit16() uint16 {
-	byteSize := uint16(2)
+	byteSize := uint32(2)
 	val := binary.BigEndian.Uint16(this.data[this.index : this.index+byteSize])
 	this.index += byteSize
 	return val
 }
 
 func (this *ClassReader) readUint32() uint32 {
-	byteSize := uint16(4)
+	byteSize := uint32(4)
 	val := binary.BigEndian.Uint32(this.data[this.index : this.index+byteSize])
 	this.index += byteSize
 	return val
 }
 
 func (this *ClassReader) readUint64() uint64 {
-	byteSize := uint16(8)
+	byteSize := uint32(8)
 	val := binary.BigEndian.Uint64(this.data[this.index : this.index+byteSize])
 	this.index += byteSize
 	return val
@@ -49,7 +49,7 @@ func (this *ClassReader) readUint16s(num uint16) []uint16 {
 	return s
 }
 
-func (this *ClassReader) readBytes(num uint16) []byte {
+func (this *ClassReader) readBytes(num uint32) []byte {
 	val := this.data[this.index : this.index+num]
 	this.index += num
 	return val
