@@ -21,7 +21,7 @@ type FLoad struct {
 }
 
 func (this *FLoad) Execute(frame *rtda.Frame) {
-	_FLoad(frame, uint(this.Index))
+	_FLoad(frame, this.Index)
 }
 
 func _FLoad(frame *rtda.Frame, index uint) {

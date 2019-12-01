@@ -20,11 +20,11 @@ func (this *NoOperandsInstruction) FetchOperands(reader *ByteCodeReader) {
 
 // 操作数是单字节下标，通常是从本地变量表的下标
 type Index8Instruction struct {
-	Index uint8
+	Index uint
 }
 
 func (this *Index8Instruction) FetchOperands(reader *ByteCodeReader) {
-	this.Index = reader.ReadUint8()
+	this.Index = uint(reader.ReadUint8())
 }
 
 type BranchInstruction struct {

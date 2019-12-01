@@ -22,7 +22,7 @@ type ALoad struct {
 }
 
 func (this *ALoad) Execute(frame *rtda.Frame) {
-	_ALoad(frame, uint(this.Index))
+	_ALoad(frame, this.Index)
 }
 
 func _ALoad(frame *rtda.Frame, index uint) {

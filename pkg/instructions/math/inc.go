@@ -24,7 +24,7 @@ func (this *IInc) FetchOperands(reader *base.ByteCodeReader) {
 
 func (this *IInc) Execute(frame *rtda.Frame) {
 	localVars := frame.LocalVars()
-	index := uint(this.Index)
+	index := this.Index
 	val := localVars.GetInt(index)
 	localVars.SetInt(index, val+this.Const)
 }

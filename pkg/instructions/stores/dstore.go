@@ -21,7 +21,7 @@ type DStore struct {
 }
 
 func (this *DStore) Execute(frame *rtda.Frame) {
-	_DStore(frame, uint(this.Index))
+	_DStore(frame, this.Index)
 }
 
 func _DStore(frame *rtda.Frame, index uint) {

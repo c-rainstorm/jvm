@@ -22,7 +22,7 @@ type FStore struct {
 }
 
 func (this *FStore) Execute(frame *rtda.Frame) {
-	_FStore(frame, uint(this.Index))
+	_FStore(frame, this.Index)
 }
 
 func _FStore(frame *rtda.Frame, index uint) {

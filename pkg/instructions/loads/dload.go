@@ -21,7 +21,7 @@ type DLoad struct {
 }
 
 func (this *DLoad) Execute(frame *rtda.Frame) {
-	_DLoad(frame, uint(this.Index))
+	_DLoad(frame, this.Index)
 }
 
 func _DLoad(frame *rtda.Frame, index uint) {

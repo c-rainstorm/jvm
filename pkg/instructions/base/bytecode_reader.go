@@ -34,3 +34,9 @@ func (this *ByteCodeReader) ReadInt32() int32 {
 	byte4 := int32(this.ReadUint8())
 	return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4
 }
+
+func (this *ByteCodeReader) SkipPadding() {
+	for this.pc%4 != 0 {
+		this.pc++
+	}
+}
