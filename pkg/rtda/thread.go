@@ -13,6 +13,14 @@ func NewThread() *Thread {
 	}
 }
 
+func (this *Thread) NewFrame(maxLocals, maxStack uint) *Frame {
+	return &Frame{
+		localVars:    NewLocalVars(maxLocals),
+		operandStack: NewOperandStack(maxStack),
+		thread: this,
+	}
+}
+
 func (this *Thread) PC() int {
 	return this.pc
 }

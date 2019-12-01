@@ -26,3 +26,15 @@ type Index8Instruction struct {
 func (this *Index8Instruction) FetchOperands(reader *ByteCodeReader) {
 	this.Index = reader.ReadUint8()
 }
+
+type BranchInstruction struct {
+	Offset int
+}
+
+func (this *BranchInstruction) FetchOperands(reader *ByteCodeReader) {
+	this.Offset = int(reader.ReadUint16())
+}
+
+func BranchJump(frame *rtda.Frame, offset int) {
+	// todo
+}
