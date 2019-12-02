@@ -40,3 +40,7 @@ func (this *ByteCodeReader) SkipPadding() {
 		this.pc++
 	}
 }
+
+func (this *ByteCodeReader) PC() int {
+	return this.pc
+}

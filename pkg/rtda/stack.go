@@ -19,7 +19,7 @@ func (this *Stack) push(frame *Frame) {
 	this.size++
 }
 
-func (this *Stack) pop(frame *Frame) *Frame {
+func (this *Stack) pop() *Frame {
 	if this._top == nil {
 		log.Panic("jvm stack is empty!")
 	}

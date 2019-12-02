@@ -6,7 +6,10 @@ import (
 	"jvm/pkg/classfile"
 	"jvm/pkg/classpath"
 	"jvm/pkg/global"
+	"jvm/pkg/instructions"
+	"jvm/pkg/instructions/base"
 	"jvm/pkg/logger"
+	"jvm/pkg/rtda"
 )
 
 var log = logger.NewLogrusLogger()
@@ -45,4 +48,63 @@ func startJVM(cmd *Cmd) {
 	if global.Verbose {
 		log.Infof("class data: %s", classFile)
 	}
+
+	mainMethod := findMainMethod(classFile)
+
+	if mainMethod != nil {
+		interpret(mainMethod)
+	} else {
+		log.Print("main method not found!")
+	}
+}
+
+func interpret(method *classfile.MethodMemberInfo) {
+	codeAttr := method.CodeAttr()
+	maxLocals := codeAttr.MaxLocals()
+	maxStack := codeAttr.MaxStack()
+	code := codeAttr.Code()
+
+	thread := rtda.NewThread()
+	frame := thread.NewFrame(uint(maxLocals), uint(maxStack))
+	thread.PushFrame(frame)
+
+	defer catchError(frame)
+	startInterpret(thread, code)
+}
+
+func catchError(frame *rtda.Frame) {
+	if r := recover(); r != nil {
+		log.Printf("LocalVars:%v\n", frame.LocalVars())
+		log.Printf("OperandStack: %v", frame.OperandStack())
+		panic(r)
+	}
+}
+
+func startInterpret(thread *rtda.Thread, byteCode []byte) {
+	frame := thread.PopFrame()
+	reader := &base.ByteCodeReader{}
+
+	for {
+		pc := frame.NextPC()
+		thread.SetPC(pc)
+
+		reader.Reset(byteCode, pc)
+		opCode := reader.ReadUint8()
+		inst := instructions.New(opCode)
+		inst.FetchOperands(reader)
+		// 读完指令以后，下次执行的PC会向后移动
+		frame.SetNextPC(reader.PC())
+
+		log.Printf("pc:%v inst:%T %v\n", pc, inst, inst)
+		inst.Execute(frame)
+	}
+}
+
+func findMainMethod(classFile *classfile.ClassFile) *classfile.MethodMemberInfo {
+	for _, m := range *classFile.Methods() {
+		if m.Name() == "main" && m.Descriptor() == "([Ljava/lang/String;)V" {
+			return m
+		}
+	}
+	return nil
 }

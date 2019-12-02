@@ -26,10 +26,6 @@ type MethodMemberInfo struct {
 	MemberInfo
 }
 
-func (this *MethodMemberInfo) read(reader *ClassReader, cp ConstantPool) {
-	this.MemberInfo.read(reader, cp)
-}
-
 func (this *MethodMemberInfo) AccessFlags() string {
 	builder := strings.Builder{}
 	builder.WriteString(this.checkAccessFlag(accMethodPublic, global.KeywordPublic))
@@ -69,4 +65,14 @@ func (this *MethodMemberInfo) checkAccessFlag(targetFlag uint16, targetKeyword s
 
 func (this *MethodMemberInfo) String() string {
 	return fmt.Sprintf("%s %s %s", this.AccessFlags(), this.cp[this.descriptorIndex].Val(), this.cp[this.nameIndex].Val())
+}
+
+func (this *MethodMemberInfo) CodeAttr() *CodeAttribute {
+	for _, attrInfo := range this.attributes {
+		switch attrInfo.(type) {
+		case *CodeAttribute:
+			return attrInfo.(*CodeAttribute)
+		}
+	}
+	return nil
 }

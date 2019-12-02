@@ -1,6 +1,8 @@
 package base
 
-import "jvm/pkg/rtda"
+import (
+	"jvm/pkg/rtda"
+)
 
 type Instruction interface {
 	// 从 reader 里读取操作数，不同的指令操作数个数、类型不同
@@ -36,5 +38,6 @@ func (this *BranchInstruction) FetchOperands(reader *ByteCodeReader) {
 }
 
 func BranchJump(frame *rtda.Frame, offset int) {
-	// todo
+	pc := frame.Thread().PC()
+	frame.Thread().SetPC(pc + offset)
 }

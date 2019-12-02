@@ -55,6 +55,15 @@ func (this *IConst0) Execute(frame *rtda.Frame) {
 	frame.OperandStack().PushInt(0)
 }
 
+type IConst1 struct {
+	base.NoOperandsInstruction
+}
+
+func (this *IConst1) Execute(frame *rtda.Frame) {
+	frame.OperandStack().PushInt(1)
+}
+
+
 type IConst2 struct {
 	base.NoOperandsInstruction
 }

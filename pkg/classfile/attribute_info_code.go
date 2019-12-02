@@ -64,3 +64,15 @@ type ExceptionAttribute struct {
 func (this ExceptionAttribute) read(reader *ClassReader) {
 	this.exceptionIndexTable = reader.readUint16s(reader.readUnit16())
 }
+
+func (this *CodeAttribute) MaxStack() uint16 {
+	return this.maxStack
+}
+
+func (this *CodeAttribute) MaxLocals() uint16 {
+	return this.maxLocals
+}
+
+func (this *CodeAttribute) Code() []byte {
+	return this.code
+}

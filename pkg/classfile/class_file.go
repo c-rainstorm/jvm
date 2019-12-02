@@ -127,7 +127,6 @@ func (this *ClassFile) String() string {
 	classFileInfo["constant pool"] = this.constantPool.String()
 	classFileInfo["interfaces"] = this.Interfaces()
 	classFileInfo["fields"] = this.Fields()
-	classFileInfo["methods"] = this.Methods()
 	return fmt.Sprintf("ClassFile%v", classFileInfo)
 }
 
@@ -200,15 +199,6 @@ func (this *ClassFile) Fields() string {
 	return builder.String()
 }
 
-func (this *ClassFile) Methods() string {
-	builder := strings.Builder{}
-	builder.WriteString("Methods{")
-
-	for i := range this.methods {
-		builder.WriteString(strings.Join([]string{fmt.Sprintf("%v", this.methods[i]), ",\n"}, ""))
-	}
-
-	builder.WriteString("}")
-
-	return builder.String()
+func (this *ClassFile) Methods() *[]*MethodMemberInfo {
+	return &this.methods
 }

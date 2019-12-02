@@ -5,6 +5,7 @@ type Frame struct {
 	localVars    LocalVars
 	operandStack *OperandStack
 	thread       *Thread
+	nextPC       int
 }
 
 func (this *Frame) Thread() *Thread {
@@ -17,4 +18,12 @@ func (this *Frame) OperandStack() *OperandStack {
 
 func (this *Frame) LocalVars() *LocalVars {
 	return &this.localVars
+}
+
+func (this *Frame) NextPC() int {
+	return this.nextPC
+}
+
+func (this *Frame) SetNextPC(nextPc int) {
+	this.nextPC = nextPc
 }

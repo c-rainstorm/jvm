@@ -28,3 +28,11 @@ func (this *MemberInfo) checkAccessFlag(targetFlag uint16, targetKeyword string)
 	}
 	return global.EmptyString
 }
+
+func (this *MemberInfo) Name() string {
+	return this.cp[this.nameIndex].(*ConstantUtf8Info).val
+}
+
+func (this *MemberInfo) Descriptor() string {
+	return this.cp[this.descriptorIndex].(*ConstantUtf8Info).val
+}
