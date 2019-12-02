@@ -68,7 +68,6 @@ func interpret(method *classfile.MethodMemberInfo) {
 	frame := thread.NewFrame(uint(maxLocals), uint(maxStack))
 	thread.PushFrame(frame)
 
-	defer catchError(frame)
 	startInterpret(thread, code)
 }
 
@@ -84,6 +83,7 @@ func startInterpret(thread *rtda.Thread, byteCode []byte) {
 	frame := thread.PopFrame()
 	reader := &base.ByteCodeReader{}
 
+	defer catchError(frame)
 	for {
 		pc := frame.NextPC()
 		thread.SetPC(pc)

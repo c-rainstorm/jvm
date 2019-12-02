@@ -34,10 +34,10 @@ type BranchInstruction struct {
 }
 
 func (this *BranchInstruction) FetchOperands(reader *ByteCodeReader) {
-	this.Offset = int(reader.ReadUint16())
+	this.Offset = int(int16(reader.ReadUint16()))
 }
 
 func BranchJump(frame *rtda.Frame, offset int) {
 	pc := frame.Thread().PC()
-	frame.Thread().SetPC(pc + offset)
+	frame.SetNextPC(pc + offset)
 }
