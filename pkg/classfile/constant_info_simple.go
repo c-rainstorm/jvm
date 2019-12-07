@@ -152,3 +152,7 @@ func (this *ConstantClassInfo) String() string {
 func (this *ConstantClassInfo) read(reader *ClassReader) {
 	this.index = reader.readUnit16()
 }
+
+func (this *ConstantClassInfo) Name() string {
+	return this.cp[this.index].(*ConstantUtf8Info).val
+}

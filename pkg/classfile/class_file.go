@@ -31,8 +31,8 @@ type ClassFile struct {
 	thisClass    uint16
 	superClass   uint16
 	interfaces   []uint16
-	fields       []*FieldMemberInfo
-	methods      []*MethodMemberInfo
+	fields       []*MemberInfo
+	methods      []*MemberInfo
 	attributes   []AttributeInfo
 }
 
@@ -101,18 +101,18 @@ func (this *ClassFile) readConstantPool(reader *ClassReader) {
 
 func (this *ClassFile) readFields(reader *ClassReader) {
 	memberCount := reader.readUnit16()
-	this.fields = make([]*FieldMemberInfo, memberCount)
+	this.fields = make([]*MemberInfo, memberCount)
 	for i := range this.fields {
-		this.fields[i] = &FieldMemberInfo{MemberInfo{}}
+		this.fields[i] = &MemberInfo{}
 		this.fields[i].read(reader, this.constantPool)
 	}
 }
 
 func (this *ClassFile) readMethods(reader *ClassReader) {
 	memberCount := reader.readUnit16()
-	this.methods = make([]*MethodMemberInfo, memberCount)
+	this.methods = make([]*MemberInfo, memberCount)
 	for i := range this.methods {
-		this.methods[i] = &MethodMemberInfo{MemberInfo{}}
+		this.methods[i] = &MemberInfo{}
 		this.methods[i].read(reader, this.constantPool)
 	}
 }
@@ -121,12 +121,11 @@ func (this *ClassFile) String() string {
 	var classFileInfo = make(map[string]string)
 	classFileInfo["magic"] = this.Magic()
 	classFileInfo["version"] = this.Version()
-	classFileInfo["accessFlags"] = this.AccessFlag()
-	classFileInfo["thisClass"] = this.ThisClass()
-	classFileInfo["superClass"] = this.SuperClass()
+	classFileInfo["accessFlags"] = string(this.AccessFlag())
+	classFileInfo["thisClass"] = this.ClassName()
+	classFileInfo["superClass"] = this.SuperClassName()
 	classFileInfo["constant pool"] = this.constantPool.String()
 	classFileInfo["interfaces"] = this.Interfaces()
-	classFileInfo["fields"] = this.Fields()
 	return fmt.Sprintf("ClassFile%v", classFileInfo)
 }
 
@@ -138,23 +137,8 @@ func (this *ClassFile) Version() string {
 	return fmt.Sprintf("%v.%v", this.majorVersion, this.minorVersion)
 }
 
-func (this *ClassFile) AccessFlag() string {
-	builder := strings.Builder{}
-	builder.WriteString(this.checkAccessFlag(accClassPublic, global.KeywordPublic))
-	builder.WriteString(this.checkAccessFlag(accClassFinal, global.KeywordFinal))
-	builder.WriteString(this.checkAccessFlag(accClassAbstract, global.KeywordAbstract))
-	if accClassInterface&this.accessFlags != 0 {
-		if accClassAnnotation&this.accessFlags != 0 {
-			builder.WriteString(global.KeywordAnnotation)
-		} else {
-			builder.WriteString(global.KeywordInterface)
-		}
-		builder.WriteString(global.Space)
-	}
-	builder.WriteString(this.checkAccessFlag(accClassEnum, global.KeywordEnum))
-	builder.WriteString(this.checkAccessFlag(accClassSynthetic, global.AccGenerated))
-
-	return builder.String()
+func (this *ClassFile) AccessFlag() uint16 {
+	return this.accessFlags
 }
 
 func (this *ClassFile) checkAccessFlag(targetFlag uint16, targetKeyword string) string {
@@ -164,12 +148,12 @@ func (this *ClassFile) checkAccessFlag(targetFlag uint16, targetKeyword string) 
 	return global.EmptyString
 }
 
-func (this *ClassFile) ThisClass() string {
-	return fmt.Sprintf("%v", this.constantPool[this.thisClass])
+func (this *ClassFile) ClassName() string {
+	return this.constantPool[this.thisClass].(*ConstantUtf8Info).val
 }
 
-func (this *ClassFile) SuperClass() string {
-	return fmt.Sprintf("%v", this.constantPool[this.superClass])
+func (this *ClassFile) SuperClassName() string {
+	return this.constantPool[this.superClass].(*ConstantUtf8Info).val
 }
 
 func (this *ClassFile) Interfaces() string {
@@ -186,19 +170,22 @@ func (this *ClassFile) Interfaces() string {
 	return builder.String()
 }
 
-func (this *ClassFile) Fields() string {
-	builder := strings.Builder{}
-	builder.WriteString("Fields{")
-
-	for i := range this.fields {
-		builder.WriteString(strings.Join([]string{fmt.Sprintf("%v", this.fields[i]), ",\n"}, ""))
-	}
-
-	builder.WriteString("}")
-
-	return builder.String()
+func (this *ClassFile) Fields() []*MemberInfo {
+	return this.fields
 }
 
-func (this *ClassFile) Methods() *[]*MethodMemberInfo {
-	return &this.methods
+func (this *ClassFile) Methods() []*MemberInfo {
+	return this.methods
+}
+
+func (this *ClassFile) InterfaceNames() []string {
+	interfaceNames := make([]string, len(this.interfaces))
+	for i, cpIndex := range this.interfaces {
+		interfaceNames[i] = this.constantPool[cpIndex].(*ConstantUtf8Info).val
+	}
+	return interfaceNames
+}
+
+func (this *ClassFile) ConstantPool() ConstantPool {
+	return this.constantPool
 }

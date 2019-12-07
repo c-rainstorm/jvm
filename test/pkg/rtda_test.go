@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"jvm/pkg/rtda"
+	"jvm/pkg/rtda/heap"
 )
 
 func TestLocalVars(t *testing.T) {
@@ -41,7 +42,7 @@ func TestLocalVars(t *testing.T) {
 		t.Errorf("target: %v, actual: %v", doubleVal, doubleResult)
 	}
 
-	refVal := &rtda.Object{}
+	refVal := &heap.Object{}
 	localVars.SetRef(6, refVal)
 	refResult := localVars.GetRef(6)
 	t.Logf("ref: %v", refResult)
@@ -85,7 +86,7 @@ func TestOperandStack(t *testing.T) {
 		t.Errorf("target: %v, actual: %v", doubleVal, doubleResult)
 	}
 
-	refVal := &rtda.Object{}
+	refVal := &heap.Object{}
 	operandStack.PushRef(refVal)
 	refResult := operandStack.PopRef()
 	t.Logf("ref: %v", refResult)
