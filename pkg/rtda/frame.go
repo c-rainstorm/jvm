@@ -30,3 +30,7 @@ func (this *Frame) NextPC() int {
 func (this *Frame) SetNextPC(nextPc int) {
 	this.nextPC = nextPc
 }
+
+func (this *Frame) Method() *heap.Method {
+	return this.method
+}

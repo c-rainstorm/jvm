@@ -4,6 +4,7 @@ type Constant interface {
 }
 
 type ConstantPool struct {
+	class  *Class
 	consts []Constant
 }
 
@@ -12,4 +13,8 @@ func (this *ConstantPool) GetConstant(index uint) Constant {
 		return c
 	}
 	return nil
+}
+
+func (this *ConstantPool) Class() *Class {
+	return this.class
 }

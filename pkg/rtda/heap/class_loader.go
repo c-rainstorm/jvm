@@ -29,7 +29,15 @@ func (this *ClassLoader) LoadClass(classname string) *Class {
 		panic("array class can't load for now. " + classname)
 	}
 
+	if global.Verbose {
+		log.Infof("loadClass start: %v", classname)
+	}
+
 	class := this.loadNonArrayClass(classname)
+
+	if global.Verbose {
+		log.Infof("loadClass done: %v", classname)
+	}
 
 	this.loadedClass[classname] = class
 
@@ -52,7 +60,7 @@ func (this *ClassLoader) loadNonArrayClass(classname string) *Class {
 	this.init(class)
 
 	if global.Verbose {
-		log.Info("Loaded %s", classname)
+		log.Infof("Loaded %s", classname)
 	}
 
 	return class

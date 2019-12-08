@@ -1,6 +1,8 @@
 package heap
 
 import (
+	"strings"
+
 	"jvm/pkg/classfile"
 	"jvm/pkg/global"
 )
@@ -35,7 +37,7 @@ type Class struct {
 
 func (this *Class) newConstantPool(cfcp classfile.ConstantPool) {
 	cpCount := len(cfcp)
-	this.constantPool = &ConstantPool{consts: make([]Constant, cpCount)}
+	this.constantPool = &ConstantPool{class: this, consts: make([]Constant, cpCount)}
 	for i := 1; i < cpCount; i++ {
 		cfConstant := cfcp[i]
 
@@ -84,20 +86,26 @@ func (this *Class) newFields(cfFields []*classfile.MemberInfo) {
 			fields[i].constValueIndex = uint(constAttr.ConstantValueIndex())
 		}
 	}
+	this.fields = fields
 }
 
 func (this *Class) newMethods(cfMethods []*classfile.MemberInfo) {
 	methods := make([]*Method, len(cfMethods))
 	for i, method := range cfMethods {
 		codeAttr := method.CodeAttr()
+		if codeAttr == nil {
+			// native 和 abstract 方法没有 code 属性
+			continue
+		}
 		methods[i] = &Method{
 			maxStack:  uint(codeAttr.MaxStack()),
 			maxLocals: uint(codeAttr.MaxLocals()),
 			code:      codeAttr.Code(),
 		}
-
+		methods[i].class = this
 		methods[i].copy(method)
 	}
+	this.methods = methods
 }
 
 func (this *Class) GetMainMethod() *Method {
@@ -119,10 +127,10 @@ func (this *Class) calInstanceFieldSlotIds() uint {
 		slotId = this.superClass.calInstanceFieldSlotIds()
 	}
 	for _, field := range this.fields {
-		if !field.isStatic() {
+		if !field.IsStatic() {
 			field.slotId = slotId
 			slotId++
-			if field.isDoubleOrLong() {
+			if field.IsDoubleOrLong() {
 				slotId++
 			}
 		}
@@ -134,10 +142,10 @@ func (this *Class) calInstanceFieldSlotIds() uint {
 func (this *Class) calStaticFieldSlotIds() {
 	slotId := uint(0)
 	for _, field := range this.fields {
-		if field.isStatic() {
+		if field.IsStatic() {
 			field.slotId = slotId
 			slotId++
-			if field.isDoubleOrLong() {
+			if field.IsDoubleOrLong() {
 				slotId++
 			}
 		}
@@ -148,7 +156,7 @@ func (this *Class) calStaticFieldSlotIds() {
 func (this *Class) initStaticFields() {
 	this.staticVars = newSlots(this.staticSlotCount)
 	for _, field := range this.fields {
-		if field.isStatic() {
+		if field.IsStatic() {
 			if field.constValueIndex > 0 {
 				this.initStaticField(field)
 			}
@@ -174,4 +182,92 @@ func (this *Class) initStaticField(field *Field) {
 	case global.FdString:
 		panic("// todo")
 	}
+}
+
+func (this *Class) ConstantPool() *ConstantPool {
+	return this.constantPool
+}
+
+func (this *Class) hasFlag(flag uint16) bool {
+	return this.accessFlags&flag != 0
+}
+
+func (this *Class) IsInterface() bool {
+	return this.hasFlag(ACC_INTERFACE)
+}
+
+func (this *Class) IsAbstract() bool {
+	return this.hasFlag(ACC_ABSTRACT)
+}
+
+func (this *Class) NewObject() *Object {
+	return &Object{class: this,
+		fields: newSlots(this.instanceSlotCount)}
+}
+
+func (this *Class) ClassLoader() *ClassLoader {
+	return this.classLoader
+}
+
+func (this *Class) isAccessibleTo(accessClass *Class) bool {
+	return this.IsPublic() || (accessClass.packageName() == this.packageName())
+}
+
+func (this *Class) IsPublic() bool {
+	return this.hasFlag(ACC_PUBLIC)
+}
+
+func (this *Class) packageName() string {
+	if i := strings.LastIndex(this.name, global.Slash); i >= 0 {
+		return this.name[:i]
+	}
+	return global.EmptyString
+}
+
+func (this *Class) lookupField(name string, descriptor string) *Field {
+	for _, field := range this.fields {
+		if field.name == name && field.descriptor == descriptor {
+			return field
+		}
+	}
+
+	for _, interfaceImpl := range this.interfaces {
+		if field := interfaceImpl.lookupField(name, descriptor); field != nil {
+			return field
+		}
+	}
+
+	if this.superClass != nil {
+		return this.superClass.lookupField(name, descriptor)
+	}
+
+	return nil
+}
+
+func (this *Class) isSubClassOf(class *Class) bool {
+	for crtClass := this.superClass; crtClass != nil; crtClass = crtClass.superClass {
+		if crtClass == class {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (this *Class) StaticSlots() Slots {
+	return this.staticVars
+}
+
+func (this *Class) isImplClassOf(interfaceClass *Class) bool {
+	for _, inf := range this.interfaces {
+		if inf == interfaceClass {
+			return true
+		}
+	}
+
+	if this.superClass == nil {
+		return false
+	}
+
+	return this.superClass.isImplClassOf(interfaceClass)
 }

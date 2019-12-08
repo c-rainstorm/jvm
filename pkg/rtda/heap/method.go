@@ -21,3 +21,15 @@ func (this *Method) MaxStack() uint {
 func (this *Method) Code() []byte {
 	return this.code
 }
+
+func (this *Method) Class() *Class {
+	return this.class
+}
+
+func (this *Method) IsCLInit() bool {
+	return this.hasFlag(ACC_STATIC) && this.name == "<clinit>"
+}
+
+func (this *Method) IsInit() bool {
+	return !this.hasFlag(ACC_STATIC) && this.name == "<init>"
+}

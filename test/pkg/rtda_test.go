@@ -1,8 +1,11 @@
 package pkg
 
 import (
+	"os"
 	"testing"
 
+	"jvm/pkg/gava"
+	"jvm/pkg/global"
 	"jvm/pkg/rtda"
 	"jvm/pkg/rtda/heap"
 )
@@ -93,4 +96,16 @@ func TestOperandStack(t *testing.T) {
 	if refVal != refResult {
 		t.Errorf("target: %v, actual: %v", refVal, refResult)
 	}
+}
+
+func TestClassAndField(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.MyObject",
+	}
+
+	gava.Main()
 }

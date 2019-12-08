@@ -76,6 +76,10 @@ func startInterpret(thread *rtda.Thread, byteCode []byte) {
 		reader.Reset(byteCode, pc)
 		opCode := reader.ReadUint8()
 		inst := instructions.New(opCode)
+		if inst == nil {
+			log.Printf("inst not found, %X", opCode)
+			break
+		}
 		inst.FetchOperands(reader)
 		// 读完指令以后，下次执行的PC会向后移动
 		frame.SetNextPC(reader.PC())

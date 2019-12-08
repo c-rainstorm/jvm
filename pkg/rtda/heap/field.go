@@ -10,18 +10,23 @@ type Field struct {
 	constValueIndex uint
 }
 
-func (this *Field) isStatic() bool {
+func (this *Field) IsStatic() bool {
 	return this.hasFlag(ACC_STATIC)
 }
 
-func (this *Field) isDoubleOrLong() bool {
+func (this *Field) IsDoubleOrLong() bool {
 	return this.descriptor == global.FdDouble || this.descriptor == global.FdLong
 }
 
-func (this *Field) isFinal() bool {
+func (this *Field) IsFinal() bool {
 	return this.hasFlag(ACC_FINAL)
 }
 
 func (this *Field) ConstValueIndex() uint {
 	return this.constValueIndex
 }
+
+func (this *Field) SlotId() uint {
+	return this.slotId
+}
+

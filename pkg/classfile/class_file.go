@@ -117,18 +117,6 @@ func (this *ClassFile) readMethods(reader *ClassReader) {
 	}
 }
 
-func (this *ClassFile) String() string {
-	var classFileInfo = make(map[string]string)
-	classFileInfo["magic"] = this.Magic()
-	classFileInfo["version"] = this.Version()
-	classFileInfo["accessFlags"] = string(this.AccessFlag())
-	classFileInfo["thisClass"] = this.ClassName()
-	classFileInfo["superClass"] = this.SuperClassName()
-	classFileInfo["constant pool"] = this.constantPool.String()
-	classFileInfo["interfaces"] = this.Interfaces()
-	return fmt.Sprintf("ClassFile%v", classFileInfo)
-}
-
 func (this *ClassFile) Magic() string {
 	return fmt.Sprintf("0x%X", this.magic)
 }
@@ -149,11 +137,14 @@ func (this *ClassFile) checkAccessFlag(targetFlag uint16, targetKeyword string) 
 }
 
 func (this *ClassFile) ClassName() string {
-	return this.constantPool[this.thisClass].(*ConstantUtf8Info).val
+	return this.getClassName(this.thisClass)
 }
 
 func (this *ClassFile) SuperClassName() string {
-	return this.constantPool[this.superClass].(*ConstantUtf8Info).val
+	if this.superClass > 0 {
+		return this.getClassName(this.superClass)
+	}
+	return global.EmptyString
 }
 
 func (this *ClassFile) Interfaces() string {
@@ -188,4 +179,9 @@ func (this *ClassFile) InterfaceNames() []string {
 
 func (this *ClassFile) ConstantPool() ConstantPool {
 	return this.constantPool
+}
+
+func (this *ClassFile) getClassName(classIndex uint16) string {
+	classNameIndex := this.constantPool[classIndex].(*ConstantClassInfo).index
+	return this.constantPool[classNameIndex].(*ConstantUtf8Info).val
 }
