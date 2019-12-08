@@ -1,6 +1,10 @@
 package rtda
 
-import "math"
+import (
+	"math"
+
+	"jvm/pkg/rtda/heap"
+)
 
 type OperandStack struct {
 	size  uint
@@ -54,12 +58,12 @@ func (this *OperandStack) PopDouble() float64 {
 	return math.Float64frombits(uint64(this.PopLong()))
 }
 
-func (this *OperandStack) PushRef(ref *Object) {
+func (this *OperandStack) PushRef(ref *heap.Object) {
 	this.slots[this.size].ref = ref
 	this.size++
 }
 
-func (this *OperandStack) PopRef() *Object {
+func (this *OperandStack) PopRef() *heap.Object {
 	this.size--
 	ref := this.slots[this.size].ref
 	this.slots[this.size].ref = nil

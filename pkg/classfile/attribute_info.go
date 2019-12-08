@@ -69,8 +69,12 @@ type ConstantValueAttribute struct {
 	constantValueIndex uint16
 }
 
-func (this ConstantValueAttribute) read(reader *ClassReader) {
+func (this *ConstantValueAttribute) read(reader *ClassReader) {
 	this.constantValueIndex = reader.readUnit16()
+}
+
+func (this *ConstantValueAttribute) ConstantValueIndex() uint16 {
+	return this.constantValueIndex
 }
 
 type LineNumberTableEntry struct {

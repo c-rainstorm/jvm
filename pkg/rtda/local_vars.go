@@ -1,10 +1,14 @@
 package rtda
 
-import "math"
+import (
+	"math"
+
+	"jvm/pkg/rtda/heap"
+)
 
 type Slot struct {
 	num int32
-	ref *Object
+	ref *heap.Object
 }
 
 type LocalVars []Slot
@@ -49,10 +53,10 @@ func (this LocalVars) GetDouble(index uint) float64 {
 	return math.Float64frombits(uint64(this.GetLong(index)))
 }
 
-func (this LocalVars) SetRef(index uint, ref *Object) {
+func (this LocalVars) SetRef(index uint, ref *heap.Object) {
 	this[index].ref = ref
 }
 
-func (this LocalVars) GetRef(index uint) *Object {
+func (this LocalVars) GetRef(index uint) *heap.Object {
 	return this[index].ref
 }

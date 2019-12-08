@@ -20,6 +20,14 @@ func (this *ConstantMemberRefInfo) read(reader *ClassReader) {
 	this.nameAndTypeIndex = reader.readUnit16()
 }
 
+func (this *ConstantMemberRefInfo) ClassName() string {
+	return this.cp[this.classIndex].(*ConstantClassInfo).Name()
+}
+
+func (this *ConstantMemberRefInfo) NameAndDescriptor() (string, string) {
+	return this.cp[this.nameAndTypeIndex].(*ConstantNameAndTypeRefInfo).NameAndType()
+}
+
 // --------------------- 特定域的描述符信息(字段、类方法签名、接口方法签名) -------------------------
 
 // byte - B
@@ -53,6 +61,10 @@ func (this *ConstantNameAndTypeRefInfo) String() string {
 func (this *ConstantNameAndTypeRefInfo) read(reader *ClassReader) {
 	this.nameIndex = reader.readUnit16()
 	this.descriptorIndex = reader.readUnit16()
+}
+
+func (this *ConstantNameAndTypeRefInfo) NameAndType() (string, string) {
+	return this.cp[this.nameIndex].(*ConstantUtf8Info).val, this.cp[this.descriptorIndex].(*ConstantUtf8Info).val
 }
 
 // --------------------- 字段引用 -------------------------

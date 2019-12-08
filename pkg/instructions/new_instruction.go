@@ -11,6 +11,7 @@ import (
 	"jvm/pkg/instructions/extend"
 	"jvm/pkg/instructions/loads"
 	"jvm/pkg/instructions/math"
+	"jvm/pkg/instructions/references"
 	"jvm/pkg/instructions/stack"
 	"jvm/pkg/instructions/stores"
 )
@@ -198,7 +199,7 @@ const (
 	OpcGetStatic
 	OpcPutStatic
 	OpcGetField
-	OpcPushField
+	OpcPutField
 	OpcInvokeVirtual
 	OpcInvokeSpecial
 	OpcInvokeStatic
@@ -263,11 +264,11 @@ func New(opCode uint8) base.Instruction {
 	case OpcSIPush:
 		return &constants.SIPush{}
 	case OpcLDC:
-		return nil
+		return &constants.LDC{}
 	case OpcLDCW:
-		return nil
+		return &constants.LDCW{}
 	case OpcLDC2W:
-		return nil
+		return &constants.LDC2W{}
 	case OpcILoad:
 		return &loads.ILoad{}
 	case OpcLLoad:
@@ -584,17 +585,17 @@ func New(opCode uint8) base.Instruction {
 	case OpcReturn:
 		return nil
 	case OpcGetStatic:
-		return nil
+		return &references.GetStatic{}
 	case OpcPutStatic:
-		return nil
+		return &references.PutStatic{}
 	case OpcGetField:
-		return nil
-	case OpcPushField:
-		return nil
+		return &references.GetField{}
+	case OpcPutField:
+		return &references.PutField{}
 	case OpcInvokeVirtual:
-		return nil
+		return &references.InvokeVirtual{}
 	case OpcInvokeSpecial:
-		return nil
+		return &references.InvokeSpecial{}
 	case OpcInvokeStatic:
 		return nil
 	case OpcInvokeInterface:
@@ -602,7 +603,7 @@ func New(opCode uint8) base.Instruction {
 	case OpcInvokeDynamic:
 		return nil
 	case OpcNew:
-		return nil
+		return &references.New{}
 	case OpcNewArray:
 		return nil
 	case OpcANewArray:
@@ -612,9 +613,9 @@ func New(opCode uint8) base.Instruction {
 	case OpcAThrow:
 		return nil
 	case OpcCheckCast:
-		return nil
+		return &references.CheckCast{}
 	case OpcInstanceOf:
-		return nil
+		return &references.InstanceOf{}
 	case OpcMonitorEnter:
 		return nil
 	case OpcMonitorExit:

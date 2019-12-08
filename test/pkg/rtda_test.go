@@ -1,9 +1,13 @@
 package pkg
 
 import (
+	"os"
 	"testing"
 
+	"jvm/pkg/gava"
+	"jvm/pkg/global"
 	"jvm/pkg/rtda"
+	"jvm/pkg/rtda/heap"
 )
 
 func TestLocalVars(t *testing.T) {
@@ -41,7 +45,7 @@ func TestLocalVars(t *testing.T) {
 		t.Errorf("target: %v, actual: %v", doubleVal, doubleResult)
 	}
 
-	refVal := &rtda.Object{}
+	refVal := &heap.Object{}
 	localVars.SetRef(6, refVal)
 	refResult := localVars.GetRef(6)
 	t.Logf("ref: %v", refResult)
@@ -85,11 +89,23 @@ func TestOperandStack(t *testing.T) {
 		t.Errorf("target: %v, actual: %v", doubleVal, doubleResult)
 	}
 
-	refVal := &rtda.Object{}
+	refVal := &heap.Object{}
 	operandStack.PushRef(refVal)
 	refResult := operandStack.PopRef()
 	t.Logf("ref: %v", refResult)
 	if refVal != refResult {
 		t.Errorf("target: %v, actual: %v", refVal, refResult)
 	}
+}
+
+func TestClassAndField(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.MyObject",
+	}
+
+	gava.Main()
 }

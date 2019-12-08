@@ -1,5 +1,12 @@
 package rtda
 
+import (
+	"jvm/pkg/logger"
+	"jvm/pkg/rtda/heap"
+)
+
+var log = logger.NewLogrusLogger()
+
 type Thread struct {
 	// 程序计数器
 	pc int
@@ -13,11 +20,12 @@ func NewThread() *Thread {
 	}
 }
 
-func (this *Thread) NewFrame(maxLocals, maxStack uint) *Frame {
+func (this *Thread) NewFrame(method *heap.Method) *Frame {
 	return &Frame{
-		localVars:    NewLocalVars(maxLocals),
-		operandStack: NewOperandStack(maxStack),
-		thread: this,
+		localVars:    NewLocalVars(method.MaxLocals()),
+		operandStack: NewOperandStack(method.MaxStack()),
+		method:       method,
+		thread:       this,
 	}
 }
 

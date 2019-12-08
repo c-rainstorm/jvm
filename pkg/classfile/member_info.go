@@ -36,3 +36,27 @@ func (this *MemberInfo) Name() string {
 func (this *MemberInfo) Descriptor() string {
 	return this.cp[this.descriptorIndex].(*ConstantUtf8Info).val
 }
+
+func (this *MemberInfo) CodeAttr() *CodeAttribute {
+	for _, attrInfo := range this.attributes {
+		switch attrInfo.(type) {
+		case *CodeAttribute:
+			return attrInfo.(*CodeAttribute)
+		}
+	}
+	return nil
+}
+
+func (this *MemberInfo) AccessFlags() uint16 {
+	return this.accessFlags
+}
+
+func (this *MemberInfo) ConstValueAttr() *ConstantValueAttribute {
+	for _, attrInfo := range this.attributes {
+		switch attrInfo.(type) {
+		case *ConstantValueAttribute:
+			return attrInfo.(*ConstantValueAttribute)
+		}
+	}
+	return nil
+}

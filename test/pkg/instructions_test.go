@@ -21,8 +21,6 @@ func TestIOTA(t *testing.T) {
 }
 
 func TestInterpret(t *testing.T) {
-	// todo 测试没过
-
 	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
 	os.Args = []string{
 		global.Gava,
