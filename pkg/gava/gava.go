@@ -53,38 +53,51 @@ func interpret(method *heap.Method) {
 	frame := thread.NewFrame(method)
 	thread.PushFrame(frame)
 
-	startInterpret(thread, method.Code())
+	startInterpret(thread)
 }
 
-func catchError(frame *rtda.Frame) {
+func catchError(thread *rtda.Thread) {
 	if r := recover(); r != nil {
-		log.Printf("LocalVars:%v\n", frame.LocalVars())
-		log.Printf("OperandStack: %v", frame.OperandStack())
+		for !thread.IsStackEmpty() {
+			frame := thread.PopFrame()
+			method := frame.Method()
+			class := method.Class()
+			log.Errorf(">> pc:%4d %v.%v%v \n", frame.NextPC(), class.Name(), method.Name(), method.Descriptor())
+		}
 		panic(r)
 	}
 }
 
-func startInterpret(thread *rtda.Thread, byteCode []byte) {
-	frame := thread.PopFrame()
+func startInterpret(thread *rtda.Thread) {
 	reader := &base.ByteCodeReader{}
 
-	defer catchError(frame)
+	defer catchError(thread)
 	for {
+		frame := thread.CurrentFrame()
 		pc := frame.NextPC()
 		thread.SetPC(pc)
 
-		reader.Reset(byteCode, pc)
+		reader.Reset(frame.Method().Code(), pc)
 		opCode := reader.ReadUint8()
 		inst := instructions.New(opCode)
 		if inst == nil {
-			log.Printf("inst not found, %X", opCode)
+			log.Printf("inst not found, 0x%X", opCode)
 			break
 		}
+
+		if global.Verbose {
+			method := frame.Method()
+			log.Infof("%v.%v() #%2d %T %v", method.Class().Name(), method.Name(), pc, inst, inst)
+		}
+
 		inst.FetchOperands(reader)
 		// 读完指令以后，下次执行的PC会向后移动
 		frame.SetNextPC(reader.PC())
 
-		log.Printf("pc:%v inst:%T %v\n", pc, inst, inst)
 		inst.Execute(frame)
+
+		if thread.IsStackEmpty() {
+			break
+		}
 	}
 }

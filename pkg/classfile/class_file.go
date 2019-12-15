@@ -172,7 +172,7 @@ func (this *ClassFile) Methods() []*MemberInfo {
 func (this *ClassFile) InterfaceNames() []string {
 	interfaceNames := make([]string, len(this.interfaces))
 	for i, cpIndex := range this.interfaces {
-		interfaceNames[i] = this.constantPool[cpIndex].(*ConstantUtf8Info).val
+		interfaceNames[i] = this.constantPool[this.constantPool[cpIndex].(*ConstantClassInfo).index].(*ConstantUtf8Info).val
 	}
 	return interfaceNames
 }

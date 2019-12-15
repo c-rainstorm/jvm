@@ -30,12 +30,12 @@ func (this Slots) GetFloat(index uint) float32 {
 }
 
 func (this Slots) SetLong(index uint, val int64) {
-	this[index].num = int32(val >> 32)
-	this[index+1].num = int32(val)
+	this[index].num = int32(uint32(val >> 32))
+	this[index+1].num = int32(uint32(val))
 }
 
 func (this Slots) GetLong(index uint) int64 {
-	return (int64(this[index].num) << 32) | int64(this[index+1].num)
+	return (int64(uint32(this[index].num)) << 32) | int64(uint32(this[index+1].num))
 }
 
 func (this Slots) SetDouble(index uint, val float64) {

@@ -37,12 +37,12 @@ func (this LocalVars) GetFloat(index uint) float32 {
 }
 
 func (this LocalVars) SetLong(index uint, val int64) {
-	this[index].num = int32(val)
-	this[index+1].num = int32(val >> 32)
+	this[index].num = int32(uint32(val))
+	this[index+1].num = int32(uint32(val >> 32))
 }
 
 func (this LocalVars) GetLong(index uint) int64 {
-	return int64(this[index].num) | (int64(this[index+1].num) << 32)
+	return int64(uint32(this[index].num)) | (int64(uint32(this[index+1].num)) << 32)
 }
 
 func (this LocalVars) SetDouble(index uint, val float64) {
@@ -59,4 +59,8 @@ func (this LocalVars) SetRef(index uint, ref *heap.Object) {
 
 func (this LocalVars) GetRef(index uint) *heap.Object {
 	return this[index].ref
+}
+
+func (this LocalVars) SetSlot(index uint, slot Slot) {
+	this[index] = slot
 }

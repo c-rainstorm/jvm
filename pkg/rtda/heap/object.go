@@ -22,8 +22,12 @@ func (this *Object) isAssignableTo(targetClass *Class) bool {
 		return true
 	}
 	if targetClass.IsInterface() {
-		return this.class.isImplClassOf(targetClass)
+		return this.class.IsImplClassOf(targetClass)
 	} else {
-		return this.class.isSubClassOf(targetClass)
+		return this.class.IsSubClassOf(targetClass)
 	}
+}
+
+func (this *Object) Class() *Class {
+	return this.class
 }

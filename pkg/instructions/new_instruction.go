@@ -573,17 +573,17 @@ func New(opCode uint8) base.Instruction {
 	case OpcLookupSwitch:
 		return &control.LookupSwitch{}
 	case OpcIReturn:
-		return nil
+		return &control.IReturn{}
 	case OpcLReturn:
-		return nil
+		return &control.LReturn{}
 	case OpcFReturn:
-		return nil
+		return &control.FReturn{}
 	case OpcDReturn:
-		return nil
+		return &control.DReturn{}
 	case OpcAReturn:
-		return nil
+		return &control.AReturn{}
 	case OpcReturn:
-		return nil
+		return &control.Return{}
 	case OpcGetStatic:
 		return &references.GetStatic{}
 	case OpcPutStatic:
@@ -597,9 +597,9 @@ func New(opCode uint8) base.Instruction {
 	case OpcInvokeSpecial:
 		return &references.InvokeSpecial{}
 	case OpcInvokeStatic:
-		return nil
+		return &references.InvokeStatic{}
 	case OpcInvokeInterface:
-		return nil
+		return &references.InvokeInterface{}
 	case OpcInvokeDynamic:
 		return nil
 	case OpcNew:

@@ -18,6 +18,13 @@ func (this *PutStatic) Execute(frame *rtda.Frame) {
 	fieldSymRef := currentClass.ConstantPool().GetConstant(this.Index).(*heap.FieldSymRef)
 	field := fieldSymRef.ResolvedField()
 
+	class := field.Class()
+	if !class.InitStarted() {
+		frame.RevertNextPC()
+		base.InitClass(frame.Thread(), class)
+		return
+	}
+
 	if !field.IsStatic() {
 		panic("java.lang.IncompatibleChangeError")
 	}

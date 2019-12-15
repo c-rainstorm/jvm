@@ -73,7 +73,7 @@ func TestOperandStack(t *testing.T) {
 		t.Errorf("target: %v, actual: %v", floatVal, floatResult)
 	}
 
-	longVal := int64(100000000000000)
+	longVal := int64(123432343234)
 	operandStack.PushLong(longVal)
 	longResult := operandStack.PopLong()
 	t.Logf("long: %v", longResult)
@@ -108,4 +108,48 @@ func TestClassAndField(t *testing.T) {
 	}
 
 	gava.Main()
+}
+
+func TestMethodInvoke(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.InvokeTest",
+	}
+
+	gava.Main()
+}
+
+func TestFibonacci(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.FibonacciTest",
+	}
+
+	gava.Main()
+}
+
+func TestClinitTest(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.ClinitTest",
+	}
+
+	gava.Main()
+}
+
+func TestInt64ToInt32(t *testing.T) {
+	longVal := int64(123432343234)
+	low32 := int32(uint32(longVal))
+	high32 := int32(uint32(longVal >> 32))
+	t.Logf("target: 0x%X, 0x%X, 0x%X", longVal, low32, high32)
+	t.Logf("target: 0x%X", int64(uint32(low32))|(int64(uint32(high32))<<32))
 }

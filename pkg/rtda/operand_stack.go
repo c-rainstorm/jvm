@@ -42,12 +42,12 @@ func (this *OperandStack) PopFloat() float32 {
 }
 
 func (this *OperandStack) PushLong(val int64) {
-	this.PushInt(int32(val))
-	this.PushInt(int32(val >> 32))
+	this.PushInt(int32(uint32(val)))
+	this.PushInt(int32(uint32(val >> 32)))
 }
 
 func (this *OperandStack) PopLong() int64 {
-	return (int64(this.PopInt()) << 32) | int64(this.PopInt())
+	return (int64(uint32(this.PopInt())) << 32) | int64(uint32(this.PopInt()))
 }
 
 func (this *OperandStack) PushDouble(val float64) {
@@ -78,4 +78,8 @@ func (this *OperandStack) PushSlot(slot Slot) {
 func (this *OperandStack) PopSlot() Slot {
 	this.size--
 	return this.slots[this.size]
+}
+
+func (this *OperandStack) GetRefFromTop(count uint) *heap.Object {
+	return this.slots[this.size-count].ref
 }

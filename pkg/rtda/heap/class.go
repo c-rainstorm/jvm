@@ -33,6 +33,8 @@ type Class struct {
 	staticSlotCount uint
 	// 静态变量表
 	staticVars Slots
+	// 类已初始化
+	initStarted bool
 }
 
 func (this *Class) newConstantPool(cfcp classfile.ConstantPool) {
@@ -95,15 +97,18 @@ func (this *Class) newMethods(cfMethods []*classfile.MemberInfo) {
 		codeAttr := method.CodeAttr()
 		if codeAttr == nil {
 			// native 和 abstract 方法没有 code 属性
-			continue
+			methods[i] = &Method{}
+		} else {
+			methods[i] = &Method{
+				maxStack:  uint(codeAttr.MaxStack()),
+				maxLocals: uint(codeAttr.MaxLocals()),
+				code:      codeAttr.Code(),
+			}
 		}
-		methods[i] = &Method{
-			maxStack:  uint(codeAttr.MaxStack()),
-			maxLocals: uint(codeAttr.MaxLocals()),
-			code:      codeAttr.Code(),
-		}
+
 		methods[i].class = this
 		methods[i].copy(method)
+		methods[i].calArgSlotCount()
 	}
 	this.methods = methods
 }
@@ -210,14 +215,14 @@ func (this *Class) ClassLoader() *ClassLoader {
 }
 
 func (this *Class) isAccessibleTo(accessClass *Class) bool {
-	return this.IsPublic() || (accessClass.packageName() == this.packageName())
+	return this.IsPublic() || (accessClass.PackageName() == this.PackageName())
 }
 
 func (this *Class) IsPublic() bool {
 	return this.hasFlag(ACC_PUBLIC)
 }
 
-func (this *Class) packageName() string {
+func (this *Class) PackageName() string {
 	if i := strings.LastIndex(this.name, global.Slash); i >= 0 {
 		return this.name[:i]
 	}
@@ -244,7 +249,7 @@ func (this *Class) lookupField(name string, descriptor string) *Field {
 	return nil
 }
 
-func (this *Class) isSubClassOf(class *Class) bool {
+func (this *Class) IsSubClassOf(class *Class) bool {
 	for crtClass := this.superClass; crtClass != nil; crtClass = crtClass.superClass {
 		if crtClass == class {
 			return true
@@ -258,7 +263,7 @@ func (this *Class) StaticSlots() Slots {
 	return this.staticVars
 }
 
-func (this *Class) isImplClassOf(interfaceClass *Class) bool {
+func (this *Class) IsImplClassOf(interfaceClass *Class) bool {
 	for _, inf := range this.interfaces {
 		if inf == interfaceClass {
 			return true
@@ -269,5 +274,71 @@ func (this *Class) isImplClassOf(interfaceClass *Class) bool {
 		return false
 	}
 
-	return this.superClass.isImplClassOf(interfaceClass)
+	return this.superClass.IsImplClassOf(interfaceClass)
+}
+
+func (this *Class) IsSuper() bool {
+	return this.hasFlag(ACC_SUPER)
+}
+
+func (this *Class) SuperClass() *Class {
+	return this.superClass
+}
+
+func (this *Class) Name() string {
+	return this.name
+}
+
+func (this *Class) InitStarted() bool {
+	return this.initStarted
+}
+
+func (this *Class) StartInit() {
+	this.initStarted = true
+}
+
+func (this *Class) GetClinitMethod() *Method {
+	return this.getStaticMethod("<clinit>", "()V")
+}
+
+func lookupMethod(kls *Class, name string, descriptor string) *Method {
+	method := LookupMethodInClass(kls, name, descriptor)
+
+	if method == nil {
+		method = lookupMethodInInterfaces(kls.interfaces, name, descriptor)
+	}
+
+	return method
+}
+
+func lookupMethodInInterfaces(interfaces []*Class, name string, descriptor string) *Method {
+	for _, inf := range interfaces {
+		method := lookupMethodInInterface(inf, name, descriptor)
+		if method != nil {
+			return method
+		}
+	}
+	return nil
+}
+
+func lookupMethodInInterface(inf *Class, name string, descriptor string) *Method {
+	for _, method := range inf.methods {
+		if method.name == name && method.descriptor == descriptor {
+			return method
+		}
+	}
+
+	return lookupMethodInInterfaces(inf.interfaces, name, descriptor)
+}
+
+func LookupMethodInClass(kls *Class, name string, descriptor string) *Method {
+	for c := kls; c != nil; c = c.superClass {
+		for _, method := range c.methods {
+			if method.name == name && method.descriptor == descriptor {
+				return method
+			}
+		}
+	}
+
+	return nil
 }

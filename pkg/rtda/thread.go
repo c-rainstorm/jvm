@@ -45,6 +45,14 @@ func (this *Thread) PopFrame() *Frame {
 	return this.stack.pop()
 }
 
-func (this *Thread) currentFrame() *Frame {
+func (this *Thread) TopFrame() *Frame {
 	return this.stack.top()
+}
+
+func (this *Thread) CurrentFrame() *Frame {
+	return this.stack.top()
+}
+
+func (this *Thread) IsStackEmpty() bool {
+	return this.stack.size == 0
 }

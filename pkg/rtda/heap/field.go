@@ -29,4 +29,3 @@ func (this *Field) ConstValueIndex() uint {
 func (this *Field) SlotId() uint {
 	return this.slotId
 }
-
