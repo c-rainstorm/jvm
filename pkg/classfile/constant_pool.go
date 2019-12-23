@@ -95,6 +95,12 @@ func newConstantInfo(tag uint8, cp ConstantPool) ConstantInfo {
 		return &ConstantNameAndTypeRefInfo{
 			cp: cp,
 		}
+	case CONSTANT_MethodHandle:
+		return &ConstantMethodHandleInfo{}
+	case CONSTANT_MethodType:
+		return &ConstantMethodTypeInfo{}
+	case CONSTANT_InvokeDynamic:
+		return &ConstantInvokeDynamicInfo{}
 	default:
 		log.Panicf("error constant info tag: %v", tag)
 		return nil

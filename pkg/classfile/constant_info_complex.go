@@ -122,3 +122,49 @@ func (this *ConstantInterfaceMethodRefInfo) read(reader *ClassReader) {
 }
 
 // todo 动态调用相关常量解析
+
+// method handle
+
+type ConstantMethodHandleInfo struct {
+	refKind  uint8
+	refIndex uint16
+}
+
+func (this *ConstantMethodHandleInfo) read(reader *ClassReader) {
+	this.refKind = reader.readUint8()
+	this.refIndex = reader.readUnit16()
+}
+
+func (this *ConstantMethodHandleInfo) Val() interface{} {
+	panic("implement me")
+}
+
+// method type
+
+type ConstantMethodTypeInfo struct {
+	descriptorIndex uint16
+}
+
+func (this *ConstantMethodTypeInfo) read(reader *ClassReader) {
+	this.descriptorIndex = reader.readUnit16()
+}
+
+func (this *ConstantMethodTypeInfo) Val() interface{} {
+	panic("implement me")
+}
+
+// method invoke dynamic
+
+type ConstantInvokeDynamicInfo struct {
+	bootstrapMethodAttrIndex uint16
+	nameAndTypeIndex         uint16
+}
+
+func (this *ConstantInvokeDynamicInfo) read(reader *ClassReader) {
+	this.bootstrapMethodAttrIndex = reader.readUnit16()
+	this.nameAndTypeIndex = reader.readUnit16()
+}
+
+func (this *ConstantInvokeDynamicInfo) Val() interface{} {
+	panic("implement me")
+}

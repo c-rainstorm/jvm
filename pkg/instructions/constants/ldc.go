@@ -3,6 +3,7 @@ package constants
 import (
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/rtda"
+	"jvm/pkg/rtda/heap"
 )
 
 type LDC struct {
@@ -22,7 +23,8 @@ func (this *LDCW) Execute(frame *rtda.Frame) {
 }
 
 func _ldc(frame *rtda.Frame, index uint) {
-	val := frame.Method().Class().ConstantPool().GetConstant(index)
+	class := frame.Method().Class()
+	val := class.ConstantPool().GetConstant(index)
 	operandStack := frame.OperandStack()
 
 	switch val.(type) {
@@ -30,7 +32,8 @@ func _ldc(frame *rtda.Frame, index uint) {
 		operandStack.PushInt(val.(int32))
 	case float32:
 		operandStack.PushFloat(val.(float32))
-	// case string:
+	case string:
+		operandStack.PushRef(heap.JString(class.ClassLoader(), val.(string)))
 	// case *heap.ClassSymRef:
 	default:
 		panic("todo: ldc!")

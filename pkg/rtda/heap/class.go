@@ -185,7 +185,8 @@ func (this *Class) initStaticField(field *Field) {
 		val := this.constantPool.GetConstant(field.constValueIndex).(float64)
 		this.staticVars.SetDouble(field.slotId, val)
 	case global.FdString:
-		panic("// todo")
+		val := this.constantPool.GetConstant(field.constValueIndex).(string)
+		this.staticVars.SetRef(field.slotId, JString(this.classLoader, val))
 	}
 }
 

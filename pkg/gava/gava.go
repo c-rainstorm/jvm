@@ -42,18 +42,31 @@ func startJVM(cmd *Cmd) {
 	mainMethod := mainClass.GetMainMethod()
 
 	if mainMethod != nil {
-		interpret(mainMethod)
+		interpret(mainMethod, cmd.args)
 	} else {
 		log.Print("main method not found!")
 	}
 }
 
-func interpret(method *heap.Method) {
+func interpret(method *heap.Method, args []string) {
 	thread := rtda.NewThread()
 	frame := thread.NewFrame(method)
+
+	// main 方法是 static 所以直接放第一个位置
+	frame.LocalVars().SetRef(0, createArgsArray(method.Class().ClassLoader(), args))
+
 	thread.PushFrame(frame)
 
 	startInterpret(thread)
+}
+
+func createArgsArray(loader *heap.ClassLoader, args []string) *heap.Object {
+	length := len(args)
+	strArr := loader.LoadClass("java/lang/String").ArrayClass().NewArray(int32(length))
+	for i, arg := range args {
+		strArr.Set(int32(i), heap.JString(loader, arg))
+	}
+	return strArr
 }
 
 func catchError(thread *rtda.Thread) {
