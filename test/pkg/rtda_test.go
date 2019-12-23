@@ -153,3 +153,40 @@ func TestInt64ToInt32(t *testing.T) {
 	t.Logf("target: 0x%X, 0x%X, 0x%X", longVal, low32, high32)
 	t.Logf("target: 0x%X", int64(uint32(low32))|(int64(uint32(high32))<<32))
 }
+
+func TestPrimitiveArrayTest(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.PrimitiveArrayTest",
+	}
+
+	gava.Main()
+}
+
+func TestObjectArrayTest(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.ObjectArrayTest",
+	}
+
+	gava.Main()
+}
+
+
+func TestBubbleSortTest(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.BubbleSortTest",
+	}
+
+	gava.Main()
+}

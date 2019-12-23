@@ -1,7 +1,7 @@
 package heap
 
 import (
-	"strings"
+	"fmt"
 
 	"jvm/pkg/classfile"
 	"jvm/pkg/classpath"
@@ -25,15 +25,16 @@ func (this *ClassLoader) LoadClass(classname string) *Class {
 		return class
 	}
 
-	if this.isArrayClass(classname) {
-		panic("array class can't load for now. " + classname)
-	}
-
 	if global.Verbose {
 		log.Infof("loadClass start: %v", classname)
 	}
 
-	class := this.loadNonArrayClass(classname)
+	var class *Class
+	if this.isArrayClass(classname) {
+		class = this.loadArrayClass(classname)
+	} else {
+		class = this.loadNonArrayClass(classname)
+	}
 
 	if global.Verbose {
 		log.Infof("loadClass done: %v", classname)
@@ -45,7 +46,7 @@ func (this *ClassLoader) LoadClass(classname string) *Class {
 }
 
 func (this *ClassLoader) isArrayClass(classname string) bool {
-	return strings.Contains(classname, "[")
+	return classname[0] == '['
 }
 
 func (this *ClassLoader) loadNonArrayClass(classname string) *Class {
@@ -136,4 +137,54 @@ func (this *ClassLoader) symRefProcess(class *Class) {
 
 func (this *ClassLoader) init(class *Class) {
 	// do nothing
+}
+
+const (
+	Boolean uint8 = 4
+	Char    uint8 = 5
+	Float   uint8 = 6
+	Double  uint8 = 7
+	Byte    uint8 = 8
+	Short   uint8 = 9
+	Int     uint8 = 10
+	Long    uint8 = 11
+)
+
+func (this *ClassLoader) LoadPrimitiveArrayClass(aType uint8) *Class {
+	switch aType {
+	case Boolean:
+		return this.LoadClass(global.FdArray + global.FdBoolean)
+	case Byte:
+		return this.LoadClass(global.FdArray + global.FdByte)
+	case Char:
+		return this.LoadClass(global.FdArray + global.FdChar)
+	case Short:
+		return this.LoadClass(global.FdArray + global.FdShort)
+	case Int:
+		return this.LoadClass(global.FdArray + global.FdInt)
+	case Long:
+		return this.LoadClass(global.FdArray + global.FdLong)
+	case Float:
+		return this.LoadClass(global.FdArray + global.FdFloat)
+	case Double:
+		return this.LoadClass(global.FdArray + global.FdDouble)
+	default:
+		panic(fmt.Sprintf("不合法的 atype: %d", aType))
+	}
+}
+
+func (this *ClassLoader) loadArrayClass(classname string) *Class {
+	return &Class{
+		accessFlags:    ACC_PUBLIC,
+		name:           classname,
+		superClassName: global.JavaLangObject,
+		superClass:     this.LoadClass(global.JavaLangObject),
+		interfaceNames: []string{global.JavaLangCloneable, global.JavaIOSerializable},
+		interfaces: []*Class{
+			this.LoadClass(global.JavaLangCloneable),
+			this.LoadClass(global.JavaIOSerializable),
+		},
+		classLoader: this,
+		initStarted: true,
+	}
 }

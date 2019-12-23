@@ -207,7 +207,7 @@ func (this *Class) IsAbstract() bool {
 
 func (this *Class) NewObject() *Object {
 	return &Object{class: this,
-		fields: newSlots(this.instanceSlotCount)}
+		data: newSlots(this.instanceSlotCount)}
 }
 
 func (this *Class) ClassLoader() *ClassLoader {
@@ -299,6 +299,95 @@ func (this *Class) StartInit() {
 
 func (this *Class) GetClinitMethod() *Method {
 	return this.getStaticMethod("<clinit>", "()V")
+}
+
+func (this *Class) NewArray(count int32) *Object {
+	if !this.isArray() {
+		panic("Not array class: " + this.name)
+	}
+	switch string(this.name[1]) {
+	case global.FdBoolean:
+		return &Object{class: this, data: make([]int8, count)}
+	case global.FdByte:
+		return &Object{class: this, data: make([]int8, count)}
+	case global.FdShort:
+		return &Object{class: this, data: make([]int16, count)}
+	case global.FdChar:
+		return &Object{class: this, data: make([]uint16, count)}
+	case global.FdInt:
+		return &Object{class: this, data: make([]int32, count)}
+	case global.FdLong:
+		return &Object{class: this, data: make([]int64, count)}
+	case global.FdFloat:
+		return &Object{class: this, data: make([]float32, count)}
+	case global.FdDouble:
+		return &Object{class: this, data: make([]float64, count)}
+	default:
+		return &Object{class: this, data: make([]*Object, count)}
+	}
+}
+
+func (this *Class) isArray() bool {
+	return this.name[0] == '['
+}
+
+func (this *Class) ArrayClass() *Class {
+	return this.classLoader.LoadClass(global.FdArray + this.descriptor())
+}
+
+var primitiveTypes = map[string]string{
+	"void":    "V",
+	"boolean": global.FdBoolean,
+	"byte":    global.FdByte,
+	"short":   global.FdShort,
+	"char":    global.FdChar,
+	"int":     global.FdInt,
+	"long":    global.FdLong,
+	"float":   global.FdFloat,
+	"double":  global.FdDouble,
+}
+
+func (this *Class) descriptor() string {
+	if this.isArray() {
+		return this.name
+	}
+
+	if primitiveType, ok := primitiveTypes[this.name]; ok {
+		return primitiveType
+	}
+
+	return global.FdRef + this.name + global.Semicolon
+}
+
+func (this *Class) ElementClass() *Class {
+	if !this.isArray() {
+		panic("Not Array: " + this.name)
+	}
+
+	if this.name[1] == '[' {
+		return this.classLoader.LoadClass(this.name[1:])
+	} else if this.name[1] == 'L' {
+		return this.classLoader.LoadClass(this.name[2 : len(this.name)-1])
+	} else {
+		name := this.name[1:]
+		for primitiveClass, value := range primitiveTypes {
+			if name == value {
+				return this.classLoader.LoadClass(primitiveClass)
+			}
+		}
+	}
+
+	panic("Invalid descriptor: " + this.name[1:])
+}
+
+func (this *Class) IsSubInterfaceOf(target *Class) bool {
+	for _, inf := range this.interfaces {
+		if inf == target || inf.IsSubInterfaceOf(target) {
+			return true
+		}
+	}
+
+	return true
 }
 
 func lookupMethod(kls *Class, name string, descriptor string) *Method {

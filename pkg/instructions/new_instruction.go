@@ -320,21 +320,21 @@ func New(opCode uint8) base.Instruction {
 	case OpcALoad3:
 		return &loads.ALoad3{}
 	case OpcIALoad:
-		return nil
+		return &loads.IALoad{}
 	case OpcLALoad:
-		return nil
+		return &loads.LALoad{}
 	case OpcFALoad:
-		return nil
+		return &loads.FALoad{}
 	case OpcDALoad:
-		return nil
+		return &loads.DALoad{}
 	case OpcAALoad:
-		return nil
+		return &loads.AALoad{}
 	case OpcBALoad:
-		return nil
+		return &loads.BALoad{}
 	case OpcCALoad:
-		return nil
+		return &loads.CALoad{}
 	case OpcSALoad:
-		return nil
+		return &loads.SALoad{}
 	case OpcIStore:
 		return &stores.IStore{}
 	case OpcLStore:
@@ -386,21 +386,21 @@ func New(opCode uint8) base.Instruction {
 	case OpcAStore3:
 		return &stores.AStore3{}
 	case OpcIAStore:
-		return nil
+		return &stores.IAStore{}
 	case OpcLAStore:
-		return nil
+		return &stores.LAStore{}
 	case OpcFAStore:
-		return nil
+		return &stores.FAStore{}
 	case OpcDAStore:
-		return nil
+		return &stores.DAStore{}
 	case OpcAAStore:
-		return nil
+		return &stores.AAStore{}
 	case OpcBAStore:
-		return nil
+		return &stores.BAStore{}
 	case OpcCAStore:
-		return nil
+		return &stores.CAStore{}
 	case OpcSAStore:
-		return nil
+		return &stores.SAStore{}
 	case OpcPOP:
 		return &stack.POP{}
 	case OpcPOP2:
@@ -605,11 +605,11 @@ func New(opCode uint8) base.Instruction {
 	case OpcNew:
 		return &references.New{}
 	case OpcNewArray:
-		return nil
+		return &references.NewArray{}
 	case OpcANewArray:
-		return nil
+		return &references.ANewArray{}
 	case OpcArrayLength:
-		return nil
+		return &references.ArrayLength{}
 	case OpcAThrow:
 		return nil
 	case OpcCheckCast:
@@ -623,7 +623,7 @@ func New(opCode uint8) base.Instruction {
 	case OpcWide:
 		return &extend.Wide{}
 	case OpcMultiANewArray:
-		return nil
+		return &extend.MultiANewArray{}
 	case OpcIfNull:
 		return &extend.IfNull{}
 	case OpcIfNonNull:
