@@ -60,9 +60,9 @@ func interpret(method *heap.Method, args []string) {
 	startInterpret(thread)
 }
 
-func createArgsArray(loader *heap.ClassLoader, args []string) *heap.Object {
+func createArgsArray(loader *heap.ClassLoader, args []string) *heap.ArrayObject {
 	length := len(args)
-	strArr := loader.LoadClass("java/lang/String").ArrayClass().NewArray(int32(length))
+	strArr := loader.LoadClass(global.JavaLangString).ArrayClass().NewArray(int32(length))
 	for i, arg := range args {
 		strArr.Set(int32(i), heap.JString(loader, arg))
 	}

@@ -6,7 +6,7 @@ type ClassMember struct {
 	accessFlags uint16
 	name        string
 	descriptor  string
-	class       *Class
+	class       *ClassObject
 }
 
 func (this *ClassMember) copy(cfMemberInfo *classfile.MemberInfo) {
@@ -19,7 +19,7 @@ func (this *ClassMember) hasFlag(flag uint16) bool {
 	return (this.accessFlags & flag) != 0
 }
 
-func (this *ClassMember) isAccessibleTo(accessClass *Class) bool {
+func (this *ClassMember) isAccessibleTo(accessClass *ClassObject) bool {
 	if this.IsPublic() {
 		// public 字段任意类都可以访问
 		return true
@@ -58,7 +58,7 @@ func (this *Method) IsStatic() bool {
 	return this.hasFlag(ACC_STATIC)
 }
 
-func (this *ClassMember) Class() *Class {
+func (this *ClassMember) Class() *ClassObject {
 	return this.class
 }
 

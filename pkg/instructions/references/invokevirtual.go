@@ -36,7 +36,7 @@ func (this *InvokeVirtual) Execute(frame *rtda.Frame) {
 		case "(D)V":
 			fmt.Printf("%v\n", operandStack.PopDouble())
 		case "(Ljava/lang/String;)V":
-			fmt.Printf("%v\n", heap.GoString(operandStack.PopRef()))
+			fmt.Printf("%v\n", heap.GoString(operandStack.PopNormalObject()))
 		default:
 			panic("println: " + methodRef.Descriptor())
 		}

@@ -24,10 +24,12 @@ func (this *GetField) Execute(frame *rtda.Frame) {
 	slotId := field.SlotId()
 	operandStack := frame.OperandStack()
 
-	ref := operandStack.PopRef()
+	ref := operandStack.PopNormalObject()
 	if ref == nil {
 		panic("java.lang.NullPointerException")
 	}
+
+
 
 	switch string(field.Descriptor()[0]) {
 	case global.FdBoolean, global.FdByte, global.FdChar, global.FdShort, global.FdInt:

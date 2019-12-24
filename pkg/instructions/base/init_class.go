@@ -5,7 +5,7 @@ import (
 	"jvm/pkg/rtda/heap"
 )
 
-func InitClass(thread *rtda.Thread, class *heap.Class) {
+func InitClass(thread *rtda.Thread, class *heap.ClassObject) {
 	if class == nil || class.InitStarted() || class.IsInterface() {
 		return
 	}
@@ -15,7 +15,7 @@ func InitClass(thread *rtda.Thread, class *heap.Class) {
 	InitClass(thread, class.SuperClass())
 }
 
-func scheduleClinit(thread *rtda.Thread, class *heap.Class) {
+func scheduleClinit(thread *rtda.Thread, class *heap.ClassObject) {
 	clinit := class.GetClinitMethod()
 	if clinit != nil {
 		thread.PushFrame(thread.NewFrame(clinit))

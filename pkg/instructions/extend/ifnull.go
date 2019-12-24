@@ -6,7 +6,7 @@ import (
 	"jvm/pkg/rtda/heap"
 )
 
-func jumpIfSatisfy(apply func(ref *heap.Object) bool, frame *rtda.Frame, offset int) {
+func jumpIfSatisfy(apply func(ref heap.Object) bool, frame *rtda.Frame, offset int) {
 	operandStack := frame.OperandStack()
 	ref := operandStack.PopRef()
 	if apply(ref) {
@@ -19,7 +19,7 @@ type IfNull struct {
 }
 
 func (this *IfNull) Execute(frame *rtda.Frame) {
-	jumpIfSatisfy(func(ref *heap.Object) bool {
+	jumpIfSatisfy(func(ref heap.Object) bool {
 		return ref == nil
 	}, frame, this.Offset)
 }
@@ -29,7 +29,7 @@ type IfNonNull struct {
 }
 
 func (this *IfNonNull) Execute(frame *rtda.Frame) {
-	jumpIfSatisfy(func(ref *heap.Object) bool {
+	jumpIfSatisfy(func(ref heap.Object) bool {
 		return ref != nil
 	}, frame, this.Offset)
 }

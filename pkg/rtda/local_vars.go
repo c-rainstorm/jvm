@@ -8,7 +8,7 @@ import (
 
 type Slot struct {
 	num int32
-	ref *heap.Object
+	ref heap.Object
 }
 
 type LocalVars []Slot
@@ -53,14 +53,30 @@ func (this LocalVars) GetDouble(index uint) float64 {
 	return math.Float64frombits(uint64(this.GetLong(index)))
 }
 
-func (this LocalVars) SetRef(index uint, ref *heap.Object) {
+func (this LocalVars) SetRef(index uint, ref heap.Object) {
 	this[index].ref = ref
 }
 
-func (this LocalVars) GetRef(index uint) *heap.Object {
+func (this LocalVars) GetRef(index uint) heap.Object {
 	return this[index].ref
 }
 
 func (this LocalVars) SetSlot(index uint, slot Slot) {
 	this[index] = slot
+}
+
+func (this LocalVars) GetThis() heap.Object {
+	return this.GetRef(0)
+}
+
+func (this LocalVars) GetNormalObject(index uint) *heap.NormalObject {
+	popRef := this.GetRef(index)
+	switch popRef.(type) {
+	case *heap.NormalObject:
+		return popRef.(*heap.NormalObject)
+	case *heap.ClassObject:
+		return popRef.(*heap.ClassObject).NormalObject
+	default:
+		panic("ref not valid")
+	}
 }

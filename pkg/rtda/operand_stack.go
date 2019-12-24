@@ -58,16 +58,28 @@ func (this *OperandStack) PopDouble() float64 {
 	return math.Float64frombits(uint64(this.PopLong()))
 }
 
-func (this *OperandStack) PushRef(ref *heap.Object) {
+func (this *OperandStack) PushRef(ref heap.Object) {
 	this.slots[this.size].ref = ref
 	this.size++
 }
 
-func (this *OperandStack) PopRef() *heap.Object {
+func (this *OperandStack) PopRef() heap.Object {
 	this.size--
 	ref := this.slots[this.size].ref
 	this.slots[this.size].ref = nil
 	return ref
+}
+
+func (this *OperandStack) PopNormalObject() *heap.NormalObject {
+	popRef := this.PopRef()
+	switch popRef.(type) {
+	case *heap.NormalObject:
+		return popRef.(*heap.NormalObject)
+	case *heap.ClassObject:
+		return popRef.(*heap.ClassObject).NormalObject
+	default:
+		panic("ref not valid")
+	}
 }
 
 func (this *OperandStack) PushSlot(slot Slot) {
@@ -80,6 +92,6 @@ func (this *OperandStack) PopSlot() Slot {
 	return this.slots[this.size]
 }
 
-func (this *OperandStack) GetRefFromTop(count uint) *heap.Object {
+func (this *OperandStack) GetRefFromTop(count uint) heap.Object {
 	return this.slots[this.size-count].ref
 }

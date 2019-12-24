@@ -5,10 +5,10 @@ type SymbolicRef struct {
 	// 进行符号解析时的那个类的运行时常量池
 	cp        *ConstantPool
 	className string
-	class     *Class
+	class     *ClassObject
 }
 
-func (this *SymbolicRef) ResolvedClass() *Class {
+func (this *SymbolicRef) ResolvedClass() *ClassObject {
 	if this.class == nil {
 		this.ResolveClassRef()
 	}
@@ -16,7 +16,7 @@ func (this *SymbolicRef) ResolvedClass() *Class {
 	return this.class
 }
 
-func (this *SymbolicRef) ResolveClassRef() *Class {
+func (this *SymbolicRef) ResolveClassRef() *ClassObject {
 	// 使用解析符号引用的类进行类加载
 	currentClass := this.cp.class
 	newClass := currentClass.classLoader.LoadClass(this.className)

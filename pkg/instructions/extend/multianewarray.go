@@ -20,19 +20,19 @@ func (this *MultiANewArray) Execute(frame *rtda.Frame) {
 	operandStack := frame.OperandStack()
 
 	classRef := frame.Method().Class().ConstantPool().GetConstant(uint(this.index)).(*heap.ClassSymRef)
-	elementClass := classRef.ResolvedClass()
+	multiDimensionArrayClass := classRef.ResolvedClass()
 	counts := popAndCheckCounts(operandStack, this.dimensions)
 
-	operandStack.PushRef(newMultiDimensionArray(counts, elementClass))
+	operandStack.PushRef(newMultiDimensionArray(counts, multiDimensionArrayClass))
 }
 
-func newMultiDimensionArray(counts []int32, elementClass *heap.Class) *heap.Object {
+func newMultiDimensionArray(counts []int32, multiDimensionArrayClass *heap.ClassObject) *heap.ArrayObject {
 	count := counts[0]
-	array := elementClass.NewArray(count)
+	array := multiDimensionArrayClass.NewArray(count)
 
 	if len(counts) > 1 {
 		for i := int32(0); i < count; i++ {
-			array.Set(i, newMultiDimensionArray(counts[1:], elementClass.ElementClass()))
+			array.Set(i, newMultiDimensionArray(counts[1:], multiDimensionArrayClass.ElementClass()))
 		}
 	}
 

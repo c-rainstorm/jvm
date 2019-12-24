@@ -6,7 +6,7 @@ import (
 	"jvm/pkg/rtda/heap"
 )
 
-func jumpIfSatisfyIII(apply func(val1, val2 *heap.Object) bool, frame *rtda.Frame, offset int) {
+func jumpIfSatisfyIII(apply func(val1, val2 heap.Object) bool, frame *rtda.Frame, offset int) {
 	operandStack := frame.OperandStack()
 	val2 := operandStack.PopRef()
 	val1 := operandStack.PopRef()
@@ -22,7 +22,7 @@ type IfACmpEQ struct {
 }
 
 func (this *IfACmpEQ) Execute(frame *rtda.Frame) {
-	jumpIfSatisfyIII(func(val1, val2 *heap.Object) bool {
+	jumpIfSatisfyIII(func(val1, val2 heap.Object) bool {
 		return val1 == val2
 	}, frame, this.Offset)
 }
@@ -32,7 +32,7 @@ type IfACmpNE struct {
 }
 
 func (this *IfACmpNE) Execute(frame *rtda.Frame) {
-	jumpIfSatisfyIII(func(val1, val2 *heap.Object) bool {
+	jumpIfSatisfyIII(func(val1, val2 heap.Object) bool {
 		return val1 != val2
 	}, frame, this.Offset)
 }

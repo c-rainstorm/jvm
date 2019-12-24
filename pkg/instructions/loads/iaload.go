@@ -18,10 +18,10 @@ func (this *IALoad) Execute(frame *rtda.Frame) {
 
 	NotNull(arrayRef)
 
-	operandStack.PushInt(arrayRef.Get(index).(int32))
+	operandStack.PushInt(arrayRef.(*heap.ArrayObject).Get(index).(int32))
 }
 
-func NotNull(ref *heap.Object) {
+func NotNull(ref heap.Object) {
 	if ref == nil {
 		panic("java.lang.NullPointerException")
 	}

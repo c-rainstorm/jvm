@@ -1,22 +1,12 @@
 package base
 
 import (
-	"fmt"
-
 	"jvm/pkg/rtda"
 	"jvm/pkg/rtda/heap"
 )
 
 func InvokeMethod(invokerFrame *rtda.Frame, method *heap.Method) {
 	thread := invokerFrame.Thread()
-
-	if method.IsNative() {
-		if method.Name() == "registerNatives" {
-			return
-		} else {
-			panic(fmt.Sprintf("native method: %v.%v%v", method.Class().Name(), method.Name(), method.Descriptor()))
-		}
-	}
 
 	newFrame := thread.NewFrame(method)
 	thread.PushFrame(newFrame)

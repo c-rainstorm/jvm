@@ -1,6 +1,8 @@
 package rtda
 
-import "jvm/pkg/rtda/heap"
+import (
+	"jvm/pkg/rtda/heap"
+)
 
 type Frame struct {
 	lower        *Frame

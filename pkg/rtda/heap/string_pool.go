@@ -6,17 +6,17 @@ import (
 	"jvm/pkg/global"
 )
 
-var internedStrings = map[string]*Object{}
+var internedStrings = map[string]*NormalObject{}
 
-func JString(loader *ClassLoader, goStr string) *Object {
+func JString(loader *ClassLoader, goStr string) *NormalObject {
 	if internedStr, ok := internedStrings[goStr]; ok {
 		return internedStr
 	}
 
 	chars := stringToUTF16(goStr)
-	jChars := &Object{class: loader.LoadClass(global.FdArray + global.FdChar), data: chars}
+	jChars := &ArrayObject{BaseObject: BaseObject{class: loader.LoadClass(global.FdArray + global.FdChar)}, data: chars}
 
-	jStr := loader.LoadClass("java/lang/String").NewObject()
+	jStr := loader.LoadClass(global.JavaLangString).NewObject().(*NormalObject)
 	jStr.SetField("value", global.FdArray+global.FdChar, jChars)
 
 	internedStrings[goStr] = jStr
@@ -31,7 +31,7 @@ func UTF16ToString(s [] uint16) string {
 	return string(utf16.Decode(s))
 }
 
-func GoString(jStr *Object) string {
-	jChars := jStr.GetField("value", global.FdArray+global.FdChar).(*Object)
+func GoString(jStr *NormalObject) string {
+	jChars := jStr.GetField("value", global.FdArray+global.FdChar).(*ArrayObject)
 	return UTF16ToString(jChars.data.([]uint16))
 }

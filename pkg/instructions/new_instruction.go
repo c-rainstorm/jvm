@@ -12,13 +12,13 @@ import (
 	"jvm/pkg/instructions/loads"
 	"jvm/pkg/instructions/math"
 	"jvm/pkg/instructions/references"
+	"jvm/pkg/instructions/reserved"
 	"jvm/pkg/instructions/stack"
 	"jvm/pkg/instructions/stores"
 )
 
-// IDEA 行号减20即为字节码对应数字  NOP 对应 0x00
 const (
-	OpcNop uint8 = iota
+	OpcNop uint8 = iota // NOP 对应 0x00, 后面自增1
 	OpcAConstNull
 	OpcIConstM1
 	OpcIConst0
@@ -635,7 +635,7 @@ func New(opCode uint8) base.Instruction {
 	case OpcBreakPoint:
 		return nil
 	case OpcImpDep1:
-		return nil
+		return &reserved.ImpDep1{}
 	case OpcImpDep2:
 		return nil
 	default:

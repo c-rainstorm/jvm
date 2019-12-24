@@ -3,6 +3,7 @@ package loads
 import (
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/rtda"
+	"jvm/pkg/rtda/heap"
 )
 
 type BALoad struct {
@@ -17,5 +18,5 @@ func (this *BALoad) Execute(frame *rtda.Frame) {
 
 	NotNull(arrayRef)
 
-	operandStack.PushInt(int32(arrayRef.Get(index).(int8)))
+	operandStack.PushInt(int32(arrayRef.(*heap.ArrayObject).Get(index).(int8)))
 }

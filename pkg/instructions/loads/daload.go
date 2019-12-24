@@ -3,6 +3,7 @@ package loads
 import (
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/rtda"
+	"jvm/pkg/rtda/heap"
 )
 
 type DALoad struct {
@@ -17,5 +18,5 @@ func (this *DALoad) Execute(frame *rtda.Frame) {
 
 	NotNull(arrayRef)
 
-	operandStack.PushDouble(arrayRef.Get(index).(float64))
+	operandStack.PushDouble(arrayRef.(*heap.ArrayObject).Get(index).(float64))
 }

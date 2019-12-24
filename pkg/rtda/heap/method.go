@@ -28,7 +28,7 @@ func (this *Method) Code() []byte {
 	return this.code
 }
 
-func (this *Method) Class() *Class {
+func (this *Method) Class() *ClassObject {
 	return this.class
 }
 
@@ -46,9 +46,7 @@ func (this *Method) ArgSlotCount() uint {
 
 // 方法描述符格式 (方法参数列表)返回描述符
 // 样例 (D[D[[D[Ljava.lang.String;Ljava.lang.String;D)V  -> void (double, double[]. double[][], String[], double)
-func (this *Method) calArgSlotCount() {
-	parsedDescriptor := parseMethodDescriptor(this.descriptor)
-
+func (this *Method) calArgSlotCount(parsedDescriptor MethodDescriptor) {
 	this.argSlotCount = parsedDescriptor.getParamSlotCount()
 	// 实例方法多一个 this
 	// 通过接口调用的
@@ -67,4 +65,23 @@ func (this *Method) IsAbstract() bool {
 
 func (this *Method) IsNative() bool {
 	return this.hasFlag(ACC_NATIVE)
+}
+
+func (this *Method) InjectNativeCodeAttr(returnType string) {
+	this.maxStack = 4
+	this.maxLocals = this.ArgSlotCount()
+	switch string(returnType[0]) {
+	case "V":
+		this.code = []byte{0xFE, 0xB1} // return
+	case global.FdDouble:
+		this.code = []byte{0xFE, 0xAF} // dreturn
+	case global.FdFloat:
+		this.code = []byte{0xFE, 0xAE} // freturn
+	case global.FdLong:
+		this.code = []byte{0xFE, 0xAD} // lreturn
+	case global.FdRef:
+		this.code = []byte{0xFE, 0xB0} // areturn
+	default:
+		this.code = []byte{0xFE, 0xAC} // ireturn
+	}
 }

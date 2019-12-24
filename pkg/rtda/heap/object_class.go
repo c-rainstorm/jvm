@@ -7,18 +7,20 @@ import (
 	"jvm/pkg/global"
 )
 
-type Class struct {
+type ClassObject struct {
+	*NormalObject
+	// 访问标识
 	accessFlags uint16
 	// 当前类的名称
 	name string
 	// 父类名
 	superClassName string
 	// 父类
-	superClass *Class
+	superClass *ClassObject
 	// 实现的接口列表
 	interfaceNames []string
 	// 接口
-	interfaces []*Class
+	interfaces []*ClassObject
 	// 运行时常量池
 	constantPool *ConstantPool
 	// 字段表
@@ -37,7 +39,52 @@ type Class struct {
 	initStarted bool
 }
 
-func (this *Class) newConstantPool(cfcp classfile.ConstantPool) {
+func (this *ClassObject) IsClassClass() bool {
+	return global.JavaLangClass == this.name
+}
+
+func (this *ClassObject) NewObject() Object {
+	obj := NormalObject{
+		BaseObject: BaseObject{class: this},
+		slots:      newSlots(this.instanceSlotCount),
+	}
+
+	if !this.IsClassClass() {
+		return &obj
+	}
+
+	return &ClassObject{
+		NormalObject: &obj,
+	}
+}
+
+func (this *ClassObject) NewArray(count int32) *ArrayObject {
+	if !this.IsArray() {
+		panic("Not array class: " + this.name)
+	}
+	switch string(this.name[1]) {
+	case global.FdBoolean:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]int8, count)}
+	case global.FdByte:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]int8, count)}
+	case global.FdShort:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]int16, count)}
+	case global.FdChar:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]uint16, count)}
+	case global.FdInt:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]int32, count)}
+	case global.FdLong:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]int64, count)}
+	case global.FdFloat:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]float32, count)}
+	case global.FdDouble:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]float64, count)}
+	default:
+		return &ArrayObject{BaseObject: BaseObject{class: this}, data: make([]Object, count)}
+	}
+}
+
+func (this *ClassObject) newConstantPool(cfcp classfile.ConstantPool) {
 	cpCount := len(cfcp)
 	this.constantPool = &ConstantPool{class: this, consts: make([]Constant, cpCount)}
 	for i := 1; i < cpCount; i++ {
@@ -77,7 +124,7 @@ func (this *Class) newConstantPool(cfcp classfile.ConstantPool) {
 	}
 }
 
-func (this *Class) newFields(cfFields []*classfile.MemberInfo) {
+func (this *ClassObject) newFields(cfFields []*classfile.MemberInfo) {
 	fields := make([]*Field, len(cfFields))
 	for i, field := range cfFields {
 		fields[i] = &Field{}
@@ -91,7 +138,7 @@ func (this *Class) newFields(cfFields []*classfile.MemberInfo) {
 	this.fields = fields
 }
 
-func (this *Class) newMethods(cfMethods []*classfile.MemberInfo) {
+func (this *ClassObject) newMethods(cfMethods []*classfile.MemberInfo) {
 	methods := make([]*Method, len(cfMethods))
 	for i, method := range cfMethods {
 		codeAttr := method.CodeAttr()
@@ -108,16 +155,20 @@ func (this *Class) newMethods(cfMethods []*classfile.MemberInfo) {
 
 		methods[i].class = this
 		methods[i].copy(method)
-		methods[i].calArgSlotCount()
+		parsedDescriptor := parseMethodDescriptor(methods[i].descriptor)
+		methods[i].calArgSlotCount(parsedDescriptor)
+		if methods[i].IsNative() {
+			methods[i].InjectNativeCodeAttr(string(parsedDescriptor.ReturnType))
+		}
 	}
 	this.methods = methods
 }
 
-func (this *Class) GetMainMethod() *Method {
+func (this *ClassObject) GetMainMethod() *Method {
 	return this.getStaticMethod(global.Main, global.MainDescriptor)
 }
 
-func (this *Class) getStaticMethod(methodName string, methodDescriptor string) *Method {
+func (this *ClassObject) getStaticMethod(methodName string, methodDescriptor string) *Method {
 	for _, m := range this.methods {
 		if m.name == methodName && m.descriptor == methodDescriptor {
 			return m
@@ -126,7 +177,7 @@ func (this *Class) getStaticMethod(methodName string, methodDescriptor string) *
 	return nil
 }
 
-func (this *Class) calInstanceFieldSlotIds() uint {
+func (this *ClassObject) calInstanceFieldSlotIds() uint {
 	slotId := uint(0)
 	if this.superClass != nil {
 		slotId = this.superClass.calInstanceFieldSlotIds()
@@ -144,7 +195,7 @@ func (this *Class) calInstanceFieldSlotIds() uint {
 	return slotId
 }
 
-func (this *Class) calStaticFieldSlotIds() {
+func (this *ClassObject) calStaticFieldSlotIds() {
 	slotId := uint(0)
 	for _, field := range this.fields {
 		if field.IsStatic() {
@@ -158,7 +209,7 @@ func (this *Class) calStaticFieldSlotIds() {
 	this.staticSlotCount = slotId
 }
 
-func (this *Class) initStaticFields() {
+func (this *ClassObject) initStaticFields() {
 	this.staticVars = newSlots(this.staticSlotCount)
 	for _, field := range this.fields {
 		if field.IsStatic() {
@@ -169,7 +220,7 @@ func (this *Class) initStaticFields() {
 	}
 }
 
-func (this *Class) initStaticField(field *Field) {
+func (this *ClassObject) initStaticField(field *Field) {
 	// 有常量值
 	switch field.descriptor {
 	case global.FdBoolean, global.FdByte, global.FdChar, global.FdShort, global.FdInt:
@@ -190,47 +241,42 @@ func (this *Class) initStaticField(field *Field) {
 	}
 }
 
-func (this *Class) ConstantPool() *ConstantPool {
+func (this *ClassObject) ConstantPool() *ConstantPool {
 	return this.constantPool
 }
 
-func (this *Class) hasFlag(flag uint16) bool {
+func (this *ClassObject) hasFlag(flag uint16) bool {
 	return this.accessFlags&flag != 0
 }
 
-func (this *Class) IsInterface() bool {
+func (this *ClassObject) IsInterface() bool {
 	return this.hasFlag(ACC_INTERFACE)
 }
 
-func (this *Class) IsAbstract() bool {
+func (this *ClassObject) IsAbstract() bool {
 	return this.hasFlag(ACC_ABSTRACT)
 }
 
-func (this *Class) NewObject() *Object {
-	return &Object{class: this,
-		data: newSlots(this.instanceSlotCount)}
-}
-
-func (this *Class) ClassLoader() *ClassLoader {
+func (this *ClassObject) ClassLoader() *ClassLoader {
 	return this.classLoader
 }
 
-func (this *Class) isAccessibleTo(accessClass *Class) bool {
+func (this *ClassObject) isAccessibleTo(accessClass *ClassObject) bool {
 	return this.IsPublic() || (accessClass.PackageName() == this.PackageName())
 }
 
-func (this *Class) IsPublic() bool {
+func (this *ClassObject) IsPublic() bool {
 	return this.hasFlag(ACC_PUBLIC)
 }
 
-func (this *Class) PackageName() string {
+func (this *ClassObject) PackageName() string {
 	if i := strings.LastIndex(this.name, global.Slash); i >= 0 {
 		return this.name[:i]
 	}
 	return global.EmptyString
 }
 
-func (this *Class) lookupField(name string, descriptor string) *Field {
+func (this *ClassObject) lookupField(name string, descriptor string) *Field {
 	for _, field := range this.fields {
 		if field.name == name && field.descriptor == descriptor {
 			return field
@@ -250,7 +296,7 @@ func (this *Class) lookupField(name string, descriptor string) *Field {
 	return nil
 }
 
-func (this *Class) IsSubClassOf(class *Class) bool {
+func (this *ClassObject) IsSubClassOf(class *ClassObject) bool {
 	for crtClass := this.superClass; crtClass != nil; crtClass = crtClass.superClass {
 		if crtClass == class {
 			return true
@@ -260,11 +306,11 @@ func (this *Class) IsSubClassOf(class *Class) bool {
 	return false
 }
 
-func (this *Class) StaticSlots() Slots {
+func (this *ClassObject) StaticSlots() Slots {
 	return this.staticVars
 }
 
-func (this *Class) IsImplClassOf(interfaceClass *Class) bool {
+func (this *ClassObject) IsImplClassOf(interfaceClass *ClassObject) bool {
 	for _, inf := range this.interfaces {
 		if inf == interfaceClass {
 			return true
@@ -278,61 +324,35 @@ func (this *Class) IsImplClassOf(interfaceClass *Class) bool {
 	return this.superClass.IsImplClassOf(interfaceClass)
 }
 
-func (this *Class) IsSuper() bool {
+func (this *ClassObject) IsSuper() bool {
 	return this.hasFlag(ACC_SUPER)
 }
 
-func (this *Class) SuperClass() *Class {
+func (this *ClassObject) SuperClass() *ClassObject {
 	return this.superClass
 }
 
-func (this *Class) Name() string {
+func (this *ClassObject) Name() string {
 	return this.name
 }
 
-func (this *Class) InitStarted() bool {
+func (this *ClassObject) InitStarted() bool {
 	return this.initStarted
 }
 
-func (this *Class) StartInit() {
+func (this *ClassObject) StartInit() {
 	this.initStarted = true
 }
 
-func (this *Class) GetClinitMethod() *Method {
+func (this *ClassObject) GetClinitMethod() *Method {
 	return this.getStaticMethod("<clinit>", "()V")
 }
 
-func (this *Class) NewArray(count int32) *Object {
-	if !this.isArray() {
-		panic("Not array class: " + this.name)
-	}
-	switch string(this.name[1]) {
-	case global.FdBoolean:
-		return &Object{class: this, data: make([]int8, count)}
-	case global.FdByte:
-		return &Object{class: this, data: make([]int8, count)}
-	case global.FdShort:
-		return &Object{class: this, data: make([]int16, count)}
-	case global.FdChar:
-		return &Object{class: this, data: make([]uint16, count)}
-	case global.FdInt:
-		return &Object{class: this, data: make([]int32, count)}
-	case global.FdLong:
-		return &Object{class: this, data: make([]int64, count)}
-	case global.FdFloat:
-		return &Object{class: this, data: make([]float32, count)}
-	case global.FdDouble:
-		return &Object{class: this, data: make([]float64, count)}
-	default:
-		return &Object{class: this, data: make([]*Object, count)}
-	}
-}
-
-func (this *Class) isArray() bool {
+func (this *ClassObject) IsArray() bool {
 	return this.name[0] == '['
 }
 
-func (this *Class) ArrayClass() *Class {
+func (this *ClassObject) ArrayClass() *ClassObject {
 	return this.classLoader.LoadClass(global.FdArray + this.descriptor())
 }
 
@@ -348,8 +368,8 @@ var primitiveTypes = map[string]string{
 	"double":  global.FdDouble,
 }
 
-func (this *Class) descriptor() string {
-	if this.isArray() {
+func (this *ClassObject) descriptor() string {
+	if this.IsArray() {
 		return this.name
 	}
 
@@ -360,8 +380,8 @@ func (this *Class) descriptor() string {
 	return global.FdRef + this.name + global.Semicolon
 }
 
-func (this *Class) ElementClass() *Class {
-	if !this.isArray() {
+func (this *ClassObject) ElementClass() *ClassObject {
+	if !this.IsArray() {
 		panic("Not Array: " + this.name)
 	}
 
@@ -381,7 +401,7 @@ func (this *Class) ElementClass() *Class {
 	panic("Invalid descriptor: " + this.name[1:])
 }
 
-func (this *Class) IsSubInterfaceOf(target *Class) bool {
+func (this *ClassObject) IsSubInterfaceOf(target *ClassObject) bool {
 	for _, inf := range this.interfaces {
 		if inf == target || inf.IsSubInterfaceOf(target) {
 			return true
@@ -391,7 +411,11 @@ func (this *Class) IsSubInterfaceOf(target *Class) bool {
 	return true
 }
 
-func lookupMethod(kls *Class, name string, descriptor string) *Method {
+func (this *ClassObject) JavaName() string {
+	return strings.Replace(this.name, global.Slash, global.Dot, -1)
+}
+
+func lookupMethod(kls *ClassObject, name string, descriptor string) *Method {
 	method := LookupMethodInClass(kls, name, descriptor)
 
 	if method == nil {
@@ -401,7 +425,7 @@ func lookupMethod(kls *Class, name string, descriptor string) *Method {
 	return method
 }
 
-func lookupMethodInInterfaces(interfaces []*Class, name string, descriptor string) *Method {
+func lookupMethodInInterfaces(interfaces []*ClassObject, name string, descriptor string) *Method {
 	for _, inf := range interfaces {
 		method := lookupMethodInInterface(inf, name, descriptor)
 		if method != nil {
@@ -411,7 +435,7 @@ func lookupMethodInInterfaces(interfaces []*Class, name string, descriptor strin
 	return nil
 }
 
-func lookupMethodInInterface(inf *Class, name string, descriptor string) *Method {
+func lookupMethodInInterface(inf *ClassObject, name string, descriptor string) *Method {
 	for _, method := range inf.methods {
 		if method.name == name && method.descriptor == descriptor {
 			return method
@@ -421,7 +445,7 @@ func lookupMethodInInterface(inf *Class, name string, descriptor string) *Method
 	return lookupMethodInInterfaces(inf.interfaces, name, descriptor)
 }
 
-func LookupMethodInClass(kls *Class, name string, descriptor string) *Method {
+func LookupMethodInClass(kls *ClassObject, name string, descriptor string) *Method {
 	for c := kls; c != nil; c = c.superClass {
 		for _, method := range c.methods {
 			if method.name == name && method.descriptor == descriptor {

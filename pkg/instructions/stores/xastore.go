@@ -19,10 +19,10 @@ func (this *XAStore) Execute0(frame *rtda.Frame, popFunc func(stack *rtda.Operan
 
 	NotNull(arrayRef)
 
-	arrayRef.Set(index, value)
+	arrayRef.(*heap.ArrayObject).Set(index, value)
 }
 
-func NotNull(ref *heap.Object) {
+func NotNull(ref interface{}) {
 	if ref == nil {
 		panic("java.lang.NullPointerException")
 	}

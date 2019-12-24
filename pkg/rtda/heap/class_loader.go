@@ -10,17 +10,20 @@ import (
 
 type ClassLoader struct {
 	cp          *classpath.Classpath
-	loadedClass map[string]*Class
+	loadedClass map[string]*ClassObject
 }
 
 func NewClassLoader(cp *classpath.Classpath) *ClassLoader {
-	return &ClassLoader{
+	classloader := &ClassLoader{
 		cp:          cp,
-		loadedClass: make(map[string]*Class),
+		loadedClass: make(map[string]*ClassObject),
 	}
+	classloader.loadBaseClass()
+	classloader.loadPrimitiveClasses()
+	return classloader
 }
 
-func (this *ClassLoader) LoadClass(classname string) *Class {
+func (this *ClassLoader) LoadClass(classname string) *ClassObject {
 	if class, ok := this.loadedClass[classname]; ok {
 		return class
 	}
@@ -29,7 +32,7 @@ func (this *ClassLoader) LoadClass(classname string) *Class {
 		log.Infof("loadClass start: %v", classname)
 	}
 
-	var class *Class
+	var class *ClassObject
 	if this.isArrayClass(classname) {
 		class = this.loadArrayClass(classname)
 	} else {
@@ -49,7 +52,7 @@ func (this *ClassLoader) isArrayClass(classname string) bool {
 	return classname[0] == '['
 }
 
-func (this *ClassLoader) loadNonArrayClass(classname string) *Class {
+func (this *ClassLoader) loadNonArrayClass(classname string) *ClassObject {
 	class := this.defineClass(classname)
 
 	this.validate(class)
@@ -75,7 +78,7 @@ func (this *ClassLoader) readClass(classname string) ([]byte, classpath.Entry) {
 	return data, entry
 }
 
-func (this *ClassLoader) defineClass(classname string) *Class {
+func (this *ClassLoader) defineClass(classname string) *ClassObject {
 	data, _ := this.readClass(classname)
 
 	classFile := classfile.Parse(data)
@@ -89,8 +92,14 @@ func (this *ClassLoader) defineClass(classname string) *Class {
 	return class
 }
 
-func (this *ClassLoader) newClass(classfile *classfile.ClassFile) *Class {
-	class := &Class{}
+func (this *ClassLoader) newClass(classfile *classfile.ClassFile) *ClassObject {
+	var class *ClassObject
+	if classClass, ok := this.loadedClass[global.JavaLangClass]; ok {
+		class = classClass.NewObject().(*ClassObject)
+	} else {
+		class = &ClassObject{}
+	}
+
 	class.accessFlags = classfile.AccessFlag()
 	class.name = classfile.ClassName()
 	class.superClassName = classfile.SuperClassName()
@@ -102,27 +111,27 @@ func (this *ClassLoader) newClass(classfile *classfile.ClassFile) *Class {
 	return class
 }
 
-func (this *ClassLoader) resolveSuperClass(class *Class) {
-	if class.name != "java/lang/Object" {
+func (this *ClassLoader) resolveSuperClass(class *ClassObject) {
+	if class.name != global.JavaLangObject {
 		class.superClass = this.LoadClass(class.superClassName)
 	}
 }
 
-func (this *ClassLoader) resolveInterfaces(class *Class) {
+func (this *ClassLoader) resolveInterfaces(class *ClassObject) {
 	interfaceCount := len(class.interfaceNames)
 	if interfaceCount > 0 {
-		class.interfaces = make([]*Class, interfaceCount)
+		class.interfaces = make([]*ClassObject, interfaceCount)
 		for i := 0; i < interfaceCount; i++ {
 			class.interfaces[i] = this.LoadClass(class.interfaceNames[i])
 		}
 	}
 }
 
-func (this *ClassLoader) validate(class *Class) {
+func (this *ClassLoader) validate(class *ClassObject) {
 	// todo
 }
 
-func (this *ClassLoader) prepare(class *Class) {
+func (this *ClassLoader) prepare(class *ClassObject) {
 	// 计算实例字段槽号
 	class.calInstanceFieldSlotIds()
 	// 计算类字段槽号
@@ -131,11 +140,11 @@ func (this *ClassLoader) prepare(class *Class) {
 	class.initStaticFields()
 }
 
-func (this *ClassLoader) symRefProcess(class *Class) {
+func (this *ClassLoader) symRefProcess(class *ClassObject) {
 	// do nothing
 }
 
-func (this *ClassLoader) init(class *Class) {
+func (this *ClassLoader) init(class *ClassObject) {
 	// do nothing
 }
 
@@ -150,7 +159,7 @@ const (
 	Long    uint8 = 11
 )
 
-func (this *ClassLoader) LoadPrimitiveArrayClass(aType uint8) *Class {
+func (this *ClassLoader) LoadPrimitiveArrayClass(aType uint8) *ClassObject {
 	switch aType {
 	case Boolean:
 		return this.LoadClass(global.FdArray + global.FdBoolean)
@@ -173,18 +182,51 @@ func (this *ClassLoader) LoadPrimitiveArrayClass(aType uint8) *Class {
 	}
 }
 
-func (this *ClassLoader) loadArrayClass(classname string) *Class {
-	return &Class{
-		accessFlags:    ACC_PUBLIC,
-		name:           classname,
-		superClassName: global.JavaLangObject,
-		superClass:     this.LoadClass(global.JavaLangObject),
-		interfaceNames: []string{global.JavaLangCloneable, global.JavaIOSerializable},
-		interfaces: []*Class{
-			this.LoadClass(global.JavaLangCloneable),
-			this.LoadClass(global.JavaIOSerializable),
-		},
-		classLoader: this,
-		initStarted: true,
+func (this *ClassLoader) loadArrayClass(classname string) *ClassObject {
+	arrayClass := this.loadedClass[global.JavaLangClass].NewObject().(*ClassObject)
+
+	arrayClass.accessFlags = ACC_PUBLIC
+	arrayClass.name = classname
+	arrayClass.superClassName = global.JavaLangObject
+	arrayClass.superClass = this.LoadClass(global.JavaLangObject)
+	arrayClass.classLoader = this
+	arrayClass.initStarted = true
+	arrayClass.interfaceNames = []string{global.JavaLangCloneable, global.JavaIOSerializable}
+	arrayClass.interfaces = []*ClassObject{
+		this.LoadClass(global.JavaLangCloneable),
+		this.LoadClass(global.JavaIOSerializable),
 	}
+
+	return arrayClass
+}
+
+func (this *ClassLoader) loadBaseClass() {
+	// 触发 java.lang.Class、java.lang.BaseObject 类加载，此时  java.lang.Class 还未被加载成功，
+	// 所以当前类的 *ClassObject 字段都是 nil，
+	this.LoadClass(global.JavaLangClass)
+	// 获取非空的 java.lang.Class
+	classClass := this.loadedClass[global.JavaLangClass]
+
+	// 逐一赋值
+	for _, classObject := range this.loadedClass {
+		classObject.NormalObject = &NormalObject{
+			BaseObject: BaseObject{class: classClass},
+			slots:      newSlots(classClass.instanceSlotCount),
+		}
+	}
+}
+
+func (this *ClassLoader) loadPrimitiveClasses() {
+	for name, _ := range primitiveTypes {
+		this.loadedClass[name] = this.loadPrimitiveClass(name)
+	}
+}
+
+func (this *ClassLoader) loadPrimitiveClass(name string) *ClassObject {
+	primitiveClass := this.loadedClass[global.JavaLangClass].NewObject().(*ClassObject)
+
+	primitiveClass.accessFlags = ACC_PUBLIC
+	primitiveClass.name = name
+	primitiveClass.classLoader = this
+	return primitiveClass
 }

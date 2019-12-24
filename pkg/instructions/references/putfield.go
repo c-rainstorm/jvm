@@ -33,35 +33,35 @@ func (this *PutField) Execute(frame *rtda.Frame) {
 	switch string(field.Descriptor()[0]) {
 	case global.FdBoolean, global.FdByte, global.FdChar, global.FdShort, global.FdInt:
 		val := operandStack.PopInt()
-		ref := operandStack.PopRef()
+		ref := operandStack.PopNormalObject()
 		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
 		ref.FieldSlots().SetInt(slotId, val)
 	case global.FdFloat:
 		val := operandStack.PopFloat()
-		ref := operandStack.PopRef()
+		ref := operandStack.PopNormalObject()
 		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
 		ref.FieldSlots().SetFloat(slotId, val)
 	case global.FdLong:
 		val := operandStack.PopLong()
-		ref := operandStack.PopRef()
+		ref := operandStack.PopNormalObject()
 		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
 		ref.FieldSlots().SetLong(slotId, val)
 	case global.FdDouble:
 		val := operandStack.PopDouble()
-		ref := operandStack.PopRef()
+		ref := operandStack.PopNormalObject()
 		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}
 		ref.FieldSlots().SetDouble(slotId, val)
 	case global.FdRef, global.FdArray:
 		val := operandStack.PopRef()
-		ref := operandStack.PopRef()
+		ref := operandStack.PopNormalObject()
 		if ref == nil {
 			panic("java.lang.NullPointerException")
 		}

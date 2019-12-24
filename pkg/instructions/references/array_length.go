@@ -3,6 +3,7 @@ package references
 import (
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/rtda"
+	"jvm/pkg/rtda/heap"
 )
 
 type ArrayLength struct {
@@ -18,5 +19,5 @@ func (this *ArrayLength) Execute(frame *rtda.Frame) {
 		panic("java.lang.NullPointerException")
 	}
 
-	operandStack.PushInt(arrayRef.ArrayLength())
+	operandStack.PushInt(arrayRef.(*heap.ArrayObject).ArrayLength())
 }

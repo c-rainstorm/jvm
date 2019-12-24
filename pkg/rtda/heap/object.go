@@ -7,40 +7,45 @@ import (
 
 var log = logger.NewLogrusLogger()
 
-type Object struct {
-	class *Class
-	data  interface{}
+type BaseObject struct {
+	class *ClassObject
 }
 
-func (this *Object) FieldSlots() Slots {
-	return this.data.(Slots)
+type Object interface {
+	Class() *ClassObject
+
+	IsInstanceOf(targetClass *ClassObject) bool
 }
 
-func (this *Object) IsInstanceOf(targetClass *Class) bool {
+func (this *BaseObject) Class() *ClassObject {
+	return this.class
+}
+
+func (this *BaseObject) IsInstanceOf(targetClass *ClassObject) bool {
 	return this.isAssignableTo(targetClass)
 }
 
-func (this *Object) isAssignableTo(targetClass *Class) bool {
+func (this *BaseObject) isAssignableTo(targetClass *ClassObject) bool {
 	if this.class == targetClass {
 		return true
 	}
 
-	if this.class.isArray() {
+	if this.class.IsArray() {
 		if targetClass.IsInterface() {
-			return global.JavaIOSerializable == targetClass.name ||
-				global.JavaLangCloneable == targetClass.name
-		} else if targetClass.isArray() {
+			return global.JavaIOSerializable == targetClass.Name() ||
+				global.JavaLangCloneable == targetClass.Name()
+		} else if targetClass.IsArray() {
 			thisEle := this.class.ElementClass()
 			targetEle := targetClass.ElementClass()
 			return thisEle == targetEle || thisEle.IsSubClassOf(targetEle)
 		} else {
-			return global.JavaLangObject == targetClass.name
+			return global.JavaLangObject == targetClass.Name()
 		}
 	} else if this.class.IsInterface() {
 		if targetClass.IsInterface() {
 			return this.class.IsSubInterfaceOf(targetClass)
 		} else {
-			return global.JavaLangObject == targetClass.name
+			return global.JavaLangObject == targetClass.Name()
 		}
 	} else {
 		if targetClass.IsInterface() {
@@ -48,151 +53,5 @@ func (this *Object) isAssignableTo(targetClass *Class) bool {
 		} else {
 			return this.class.IsSubClassOf(targetClass)
 		}
-	}
-}
-
-func (this *Object) Class() *Class {
-	return this.class
-}
-
-func (this *Object) ArrayLength() int32 {
-	if !this.class.isArray() {
-		panic("当前对象不是数组：" + this.class.name)
-	}
-
-	switch this.data.(type) {
-	case []int8:
-		return int32(len(this.data.([]int8)))
-	case []int16:
-		return int32(len(this.data.([]int16)))
-	case []uint16:
-		return int32(len(this.data.([]uint16)))
-	case []int32:
-		return int32(len(this.data.([]int32)))
-	case []int64:
-		return int32(len(this.data.([]int64)))
-	case []float32:
-		return int32(len(this.data.([]float32)))
-	case []float64:
-		return int32(len(this.data.([]float64)))
-	case []*Object:
-		return int32(len(this.data.([]*Object)))
-	default:
-		panic("Not Array")
-	}
-}
-
-func (this *Object) Get(index int32) interface{} {
-	this.indexCheck(index)
-
-	switch this.data.(type) {
-	case []int8:
-		return this.data.([]int8)[index]
-	case []int16:
-		return this.data.([]int16)[index]
-	case []uint16:
-		return this.data.([]uint16)[index]
-	case []int32:
-		return this.data.([]int32)[index]
-	case []int64:
-		return this.data.([]int64)[index]
-	case []float32:
-		return this.data.([]float32)[index]
-	case []float64:
-		return this.data.([]float64)[index]
-	case []*Object:
-		return this.data.([]*Object)[index]
-	default:
-		panic("Not Array")
-	}
-}
-
-func (this *Object) Set(index int32, value interface{}) {
-	this.indexCheck(index)
-	switch this.data.(type) {
-	case []int8:
-		this.data.([]int8)[index] = int8(value.(int32))
-	case []int16:
-		this.data.([]int16)[index] = int16(value.(int32))
-	case []uint16:
-		this.data.([]uint16)[index] = uint16(value.(int32))
-	case []int32:
-		this.data.([]int32)[index] = value.(int32)
-	case []int64:
-		this.data.([]int64)[index] = value.(int64)
-	case []float32:
-		this.data.([]float32)[index] = value.(float32)
-	case []float64:
-		this.data.([]float64)[index] = value.(float64)
-	case []*Object:
-		this.data.([]*Object)[index] = value.(*Object)
-	default:
-		panic("Not Array")
-	}
-}
-
-func (this *Object) indexCheck(index int32) {
-	length := this.ArrayLength()
-	if index < 0 || length <= index {
-		panic("ArrayIndexOutOfBoundsException")
-	}
-}
-
-func (this *Object) SetField(name string, descriptor string, value interface{}) {
-	field := this.Class().lookupField(name, descriptor)
-
-	if field == nil {
-		panic("field not found: " + name + " " + descriptor)
-	}
-
-	slotId := field.slotId
-	var slots Slots
-	if field.IsStatic() {
-		slots = field.class.StaticSlots()
-	} else {
-		slots = this.FieldSlots()
-	}
-
-	switch string(field.Descriptor()[0]) {
-	case global.FdBoolean, global.FdByte, global.FdChar, global.FdShort, global.FdInt:
-		slots.SetInt(slotId, value.(int32))
-	case global.FdFloat:
-		slots.SetFloat(slotId, value.(float32))
-	case global.FdLong:
-		slots.SetLong(slotId, value.(int64))
-	case global.FdDouble:
-		slots.SetDouble(slotId, value.(float64))
-	case global.FdRef, global.FdArray:
-		slots.SetRef(slotId, value.(*Object))
-	}
-}
-
-func (this *Object) GetField(name string, descriptor string) interface{} {
-	field := this.Class().lookupField(name, descriptor)
-	if field == nil {
-		panic("field not found: " + name + " " + descriptor)
-	}
-
-	slotId := field.slotId
-	var slots Slots
-	if field.IsStatic() {
-		slots = field.class.StaticSlots()
-	} else {
-		slots = this.FieldSlots()
-	}
-
-	switch string(field.Descriptor()[0]) {
-	case global.FdBoolean, global.FdByte, global.FdChar, global.FdShort, global.FdInt:
-		return slots.GetInt(slotId)
-	case global.FdFloat:
-		return slots.GetFloat(slotId)
-	case global.FdLong:
-		return slots.GetLong(slotId)
-	case global.FdDouble:
-		return slots.GetDouble(slotId)
-	case global.FdRef, global.FdArray:
-		return slots.GetRef(slotId)
-	default:
-		panic("unknow type" + string(field.Descriptor()[0]))
 	}
 }

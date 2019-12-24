@@ -1,6 +1,8 @@
 package heap
 
-import "jvm/pkg/global"
+import (
+	"jvm/pkg/global"
+)
 
 type Field struct {
 	ClassMember

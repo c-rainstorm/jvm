@@ -18,5 +18,5 @@ func (this *AALoad) Execute(frame *rtda.Frame) {
 
 	NotNull(arrayRef)
 
-	operandStack.PushRef(arrayRef.Get(index).(*heap.Object))
+	operandStack.PushRef(arrayRef.(*heap.ArrayObject).Get(index).(heap.Object))
 }

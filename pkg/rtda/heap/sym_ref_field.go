@@ -1,6 +1,8 @@
 package heap
 
-import "jvm/pkg/classfile"
+import (
+	"jvm/pkg/classfile"
+)
 
 type FieldSymRef struct {
 	ClassMemberSymRef
