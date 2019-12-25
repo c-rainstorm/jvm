@@ -1,6 +1,8 @@
 package heap
 
 import (
+	"sync/atomic"
+
 	"jvm/pkg/global"
 	"jvm/pkg/logger"
 )
@@ -8,13 +10,27 @@ import (
 var log = logger.NewLogrusLogger()
 
 type BaseObject struct {
+	MarkWord
 	class *ClassObject
+}
+
+func (this *BaseObject) HashCode() int32 {
+	if this.hashCode == 0 {
+		this.mutex.Lock()
+		if this.hashCode == 0 {
+			this.hashCode = atomic.AddInt32(&hashCodeGenerator, 1)
+		}
+		this.mutex.Unlock()
+	}
+	return this.hashCode
 }
 
 type Object interface {
 	Class() *ClassObject
 
 	IsInstanceOf(targetClass *ClassObject) bool
+
+	HashCode() int32
 }
 
 func (this *BaseObject) Class() *ClassObject {

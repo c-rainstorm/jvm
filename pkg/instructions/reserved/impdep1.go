@@ -6,6 +6,7 @@ import (
 	"jvm/pkg/rtda"
 
 	_ "jvm/pkg/native/java/lang"
+	_ "jvm/pkg/native/sun/misc"
 )
 
 // 使用该指令实现本地方法调用

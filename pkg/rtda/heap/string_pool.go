@@ -17,7 +17,7 @@ func JString(loader *ClassLoader, goStr string) *NormalObject {
 	jChars := &ArrayObject{BaseObject: BaseObject{class: loader.LoadClass(global.FdArray + global.FdChar)}, data: chars}
 
 	jStr := loader.LoadClass(global.JavaLangString).NewObject().(*NormalObject)
-	jStr.SetField("value", global.FdArray+global.FdChar, jChars)
+	jStr.Class().SetField(jStr, "value", global.FdArray+global.FdChar, jChars)
 
 	internedStrings[goStr] = jStr
 	return jStr
@@ -32,7 +32,7 @@ func UTF16ToString(s [] uint16) string {
 }
 
 func GoString(jStr *NormalObject) string {
-	jChars := jStr.GetField("value", global.FdArray+global.FdChar).(*ArrayObject)
+	jChars := jStr.Class().GetField(jStr, "value", global.FdArray+global.FdChar).(*ArrayObject)
 	return UTF16ToString(jChars.data.([]uint16))
 }
 

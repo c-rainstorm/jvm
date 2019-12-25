@@ -17,6 +17,10 @@ func (this *AALoad) Execute(frame *rtda.Frame) {
 	arrayRef := operandStack.PopRef()
 
 	NotNull(arrayRef)
-
-	operandStack.PushRef(arrayRef.(*heap.ArrayObject).Get(index).(heap.Object))
+	itemRef := arrayRef.(*heap.ArrayObject).Get(index)
+	if itemRef == nil {
+		operandStack.PushRef(nil)
+	} else {
+		operandStack.PushRef(itemRef.(heap.Object))
+	}
 }

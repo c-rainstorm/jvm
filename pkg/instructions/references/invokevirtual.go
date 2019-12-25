@@ -73,5 +73,5 @@ func (this *InvokeVirtual) Execute(frame *rtda.Frame) {
 		panic("java.lang.AbstractMethodError")
 	}
 
-	base.InvokeMethod(frame, resolvedMethod)
+	base.InvokeMethod(frame, methodToBeInvoked)
 }

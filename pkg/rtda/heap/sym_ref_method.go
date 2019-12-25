@@ -23,7 +23,7 @@ func (this *MethodSymRef) resolveMethodRef() {
 	method := lookupMethod(classHasThisMethod, this.name, this.descriptor)
 
 	if method == nil {
-		panic("java.lang.NoSuchFieldError")
+		panic("java.lang.NoSuchMethodError")
 	}
 
 	if !method.isAccessibleTo(currentClass) {

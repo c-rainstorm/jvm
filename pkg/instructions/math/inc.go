@@ -19,7 +19,7 @@ type IInc struct {
 
 func (this *IInc) FetchOperands(reader *base.ByteCodeReader) {
 	this.Index8Instruction.FetchOperands(reader)
-	this.Const = int32(reader.ReadUint8())
+	this.Const = int32(int8(reader.ReadUint8()))
 }
 
 func (this *IInc) Execute(frame *rtda.Frame) {
