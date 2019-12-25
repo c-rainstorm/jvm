@@ -83,3 +83,42 @@ func (this *ArrayObject) indexCheck(index int32) {
 		panic("ArrayIndexOutOfBoundsException")
 	}
 }
+
+func (this *ArrayObject) CopyTo(dest *ArrayObject, srcPos int32, destPos int32, length int32) {
+	switch this.data.(type) {
+	case []int8:
+		_src := this.data.([]int8)[srcPos : srcPos+length]
+		_dest := dest.data.([]int8)[destPos : destPos+length]
+		copy(_dest, _src)
+	case []int16:
+		_src := this.data.([]int16)[srcPos : srcPos+length]
+		_dest := dest.data.([]int16)[destPos : destPos+length]
+		copy(_dest, _src)
+	case []uint16:
+		_src := this.data.([]uint16)[srcPos : srcPos+length]
+		_dest := dest.data.([]uint16)[destPos : destPos+length]
+		copy(_dest, _src)
+	case []int32:
+		_src := this.data.([]int32)[srcPos : srcPos+length]
+		_dest := dest.data.([]int32)[destPos : destPos+length]
+		copy(_dest, _src)
+	case []int64:
+		_src := this.data.([]int64)[srcPos : srcPos+length]
+		_dest := dest.data.([]int64)[destPos : destPos+length]
+		copy(_dest, _src)
+	case []float32:
+		_src := this.data.([]float32)[srcPos : srcPos+length]
+		_dest := dest.data.([]float32)[destPos : destPos+length]
+		copy(_dest, _src)
+	case []float64:
+		_src := this.data.([]float64)[srcPos : srcPos+length]
+		_dest := dest.data.([]float64)[destPos : destPos+length]
+		copy(_dest, _src)
+	case []Object:
+		_src := this.data.([]Object)[srcPos : srcPos+length]
+		_dest := dest.data.([]Object)[destPos : destPos+length]
+		copy(_dest, _src)
+	default:
+		panic("Not Array")
+	}
+}

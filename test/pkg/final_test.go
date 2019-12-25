@@ -31,3 +31,15 @@ func TestNative(t *testing.T) {
 
 	gava.Main()
 }
+
+func TestStringAppend(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		"-v",
+		"me.rainstorm.jvm.StringAppend",
+	}
+
+	gava.Main()
+}

@@ -494,7 +494,7 @@ func New(opCode uint8) base.Instruction {
 	case OpcIInc:
 		return &math.IInc{}
 	case OpcI2L:
-		return &conversions.I2F{}
+		return &conversions.I2L{}
 	case OpcI2F:
 		return &conversions.I2F{}
 	case OpcI2D:

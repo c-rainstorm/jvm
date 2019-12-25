@@ -415,6 +415,11 @@ func (this *ClassObject) JavaName() string {
 	return strings.Replace(this.name, global.Slash, global.Dot, -1)
 }
 
+func (this *ClassObject) IsPrimitive() bool {
+	_, ok := primitiveTypes[this.name]
+	return ok
+}
+
 func lookupMethod(kls *ClassObject, name string, descriptor string) *Method {
 	method := LookupMethodInClass(kls, name, descriptor)
 

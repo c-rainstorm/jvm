@@ -80,3 +80,18 @@ func (this LocalVars) GetNormalObject(index uint) *heap.NormalObject {
 		panic("ref not valid")
 	}
 }
+
+func (this LocalVars) GetArrayObject(index uint) *heap.ArrayObject {
+	popRef := this.GetRef(index)
+
+	if popRef == nil {
+		panic("java.lang.NullPointerException")
+	}
+
+	switch popRef.(type) {
+	case *heap.ArrayObject:
+		return popRef.(*heap.ArrayObject)
+	default:
+		return nil
+	}
+}

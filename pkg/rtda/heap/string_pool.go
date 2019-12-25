@@ -35,3 +35,13 @@ func GoString(jStr *NormalObject) string {
 	jChars := jStr.GetField("value", global.FdArray+global.FdChar).(*ArrayObject)
 	return UTF16ToString(jChars.data.([]uint16))
 }
+
+func Intern0(jStr *NormalObject) Object {
+	goStr := GoString(jStr)
+	if interned, ok := internedStrings[goStr]; ok {
+		return interned
+	}
+
+	internedStrings[goStr] = jStr
+	return jStr
+}

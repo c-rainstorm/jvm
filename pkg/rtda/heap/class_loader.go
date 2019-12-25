@@ -227,6 +227,7 @@ func (this *ClassLoader) loadPrimitiveClass(name string) *ClassObject {
 
 	primitiveClass.accessFlags = ACC_PUBLIC
 	primitiveClass.name = name
+	primitiveClass.initStarted = true
 	primitiveClass.classLoader = this
 	return primitiveClass
 }
