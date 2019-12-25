@@ -8,8 +8,13 @@ import (
 )
 
 func init() {
-	native.MethodRegistry.Registry(global.JavaLangClass, "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class", getPrimitiveClass)
+	native.MethodRegistry.Registry(global.JavaLangClass, "getPrimitiveClass", "(Ljava/lang/String;)Ljava/lang/Class;", getPrimitiveClass)
 	native.MethodRegistry.Registry(global.JavaLangClass, "getName0", "()Ljava/lang/String;", getName0)
+	native.MethodRegistry.Registry(global.JavaLangClass, "desiredAssertionStatus0", "(Ljava/lang/Class;)Z", desiredAssertionStatus0)
+}
+
+func desiredAssertionStatus0(frame *rtda.Frame) {
+	frame.OperandStack().PushInt(0)
 }
 
 func getName0(frame *rtda.Frame) {

@@ -25,7 +25,7 @@ func TestNative(t *testing.T) {
 	os.Args = []string{
 		global.Gava,
 		"-cp", cp,
-		"-v",
+		// "-v",
 		"me.rainstorm.jvm.NativeTest",
 	}
 
