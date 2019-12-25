@@ -34,3 +34,4 @@ MIT
 
 - 《自己动手写Java虚拟机》
 - 《深入理解Java虚拟机》
+- [《OpenJDK - jdk8u/jdk8u》](https://github.com/unofficial-openjdk/openjdk/tree/jdk8u/jdk8u)
