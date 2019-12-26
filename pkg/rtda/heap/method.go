@@ -1,8 +1,41 @@
 package heap
 
 import (
+	"jvm/pkg/classfile"
 	"jvm/pkg/global"
 )
+
+// ExceptionTableEntry
+type ExceptionHandler struct {
+	// startPc 和 endPc 代表出异常时执行的代码范围
+	// startPc 是 code[] 的起始下标，endPc 是 code[] 的结束下标
+	// [startPc, endPc)   实际的范围不包括 endPc 下标锁代表的位置
+	// 不包括 endPC 是 JVM规范设计上的一个缺陷，具体为啥没搞明白，，，
+	startPc uint16
+	endPc   uint16
+
+	// code[] 里异常处理器的下标位置，且必须指向一个字节码指令
+	handlerPc uint16
+
+	// 非0，必须是常量池的有效索引，且必须是一个 Class 类型的常量信息
+	// 如果为0，则代表对所有异常都适用，通常用来实现 finally
+	// finally 时该字段为 nil
+	catchType *ClassSymRef
+}
+
+func (this *ExceptionHandler) StartPc() uint16 {
+	return this.startPc
+}
+
+func (this *ExceptionHandler) EndPc() uint16 {
+	return this.endPc
+}
+
+func (this *ExceptionHandler) HandlerPc() uint16 {
+	return this.handlerPc
+}
+
+type ExceptionTable []*ExceptionHandler
 
 type Method struct {
 	ClassMember
@@ -14,6 +47,10 @@ type Method struct {
 	code []byte
 	// 方法参数占用槽数
 	argSlotCount uint
+	// 异常表
+	exceptionTable ExceptionTable
+	// 行号表
+	lineNumberTable []*classfile.LineNumberTableEntry
 }
 
 func (this *Method) MaxLocals() uint {
@@ -84,4 +121,40 @@ func (this *Method) InjectNativeCodeAttr(returnType string) {
 	default:
 		this.code = []byte{0xFE, 0xAC} // ireturn
 	}
+}
+
+func (this *Method) LookupExceptionTable(class *ClassObject, pc uint16) *ExceptionHandler {
+	for _, handler := range this.exceptionTable {
+		pcValid := pc >= handler.startPc && pc < handler.endPc
+		if !pcValid {
+			continue
+		}
+
+		isFinallyBlock := handler.catchType == nil
+		if isFinallyBlock {
+			return handler
+		}
+
+		catchExceptionClass := handler.catchType.ResolvedClass()
+		catchTypeMatched := class == catchExceptionClass ||
+			(catchExceptionClass.IsInterface() && class.IsImplClassOf(catchExceptionClass)) ||
+			(class.IsSubClassOf(catchExceptionClass))
+		if catchTypeMatched {
+			return handler
+		}
+	}
+	return nil
+}
+
+func (this *Method) GetLineNumber(pc int) int {
+	if this.lineNumberTable == nil {
+		return -1
+	}
+	for i := len(this.lineNumberTable) - 1; i >= 0; i-- {
+		entry := this.lineNumberTable[i]
+		if pc >= int(entry.GetStartPc()) {
+			return int(entry.GetLineNumber())
+		}
+	}
+	return -1
 }

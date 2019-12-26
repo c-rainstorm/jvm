@@ -185,3 +185,13 @@ func (this *ClassFile) getClassName(classIndex uint16) string {
 	classNameIndex := this.constantPool[classIndex].(*ConstantClassInfo).index
 	return this.constantPool[classNameIndex].(*ConstantUtf8Info).val
 }
+
+func (this *ClassFile) SourceFile() string {
+	for _, attrInfo := range this.attributes {
+		switch attrInfo.(type) {
+		case *SourceFileAttribute:
+			return this.constantPool[attrInfo.(*SourceFileAttribute).sourceFileIndex].(*ConstantUtf8Info).val
+		}
+	}
+	return ""
+}

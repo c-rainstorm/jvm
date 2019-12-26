@@ -13,6 +13,10 @@ type Frame struct {
 	method       *heap.Method
 }
 
+func (this *Frame) Lower() *Frame {
+	return this.lower
+}
+
 func (this *Frame) Thread() *Thread {
 	return this.thread
 }

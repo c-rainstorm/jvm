@@ -37,6 +37,8 @@ type ClassObject struct {
 	staticVars Slots
 	// 类已初始化
 	initStarted bool
+	// 源文件
+	sourceFile string
 }
 
 func (this *ClassObject) IsClassClass() bool {
@@ -44,17 +46,17 @@ func (this *ClassObject) IsClassClass() bool {
 }
 
 func (this *ClassObject) NewObject() Object {
-	obj := NormalObject{
+	obj := &NormalObject{
 		BaseObject: BaseObject{class: this},
 		slots:      newSlots(this.instanceSlotCount),
 	}
 
 	if !this.IsClassClass() {
-		return &obj
+		return obj
 	}
 
 	return &ClassObject{
-		NormalObject: &obj,
+		NormalObject: obj,
 	}
 }
 
@@ -147,9 +149,11 @@ func (this *ClassObject) newMethods(cfMethods []*classfile.MemberInfo) {
 			methods[i] = &Method{}
 		} else {
 			methods[i] = &Method{
-				maxStack:  uint(codeAttr.MaxStack()),
-				maxLocals: uint(codeAttr.MaxLocals()),
-				code:      codeAttr.Code(),
+				maxStack:        uint(codeAttr.MaxStack()),
+				maxLocals:       uint(codeAttr.MaxLocals()),
+				exceptionTable:  this.resolveExceptionTable(codeAttr.ExceptionTable()),
+				lineNumberTable: codeAttr.LineNumberTable(),
+				code:            codeAttr.Code(),
 			}
 		}
 
@@ -523,4 +527,27 @@ func (this *ClassObject) GetField(obj *NormalObject, name string, descriptor str
 	default:
 		panic("unknow type" + string(field.Descriptor()[0]))
 	}
+}
+
+func (this *ClassObject) resolveExceptionTable(exceptionTableSymRef []*classfile.ExceptionTableEntry) ExceptionTable {
+	if exceptionTableSymRef == nil || len(exceptionTableSymRef) == 0 {
+		return make([]*ExceptionHandler, 0)
+	}
+
+	handlers := make([]*ExceptionHandler, len(exceptionTableSymRef))
+	for i, handler := range exceptionTableSymRef {
+		handlers[i] = &ExceptionHandler{
+			startPc:   handler.StartPc(),
+			endPc:     handler.EndPc(),
+			handlerPc: handler.HandlerPc(),
+		}
+		if handler.CatchType() != 0 {
+			handlers[i].catchType = this.constantPool.GetConstant(uint(handler.CatchType())).(*ClassSymRef)
+		}
+	}
+	return handlers
+}
+
+func (this *ClassObject) SourceFile() string {
+	return this.sourceFile
 }

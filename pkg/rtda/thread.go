@@ -56,3 +56,7 @@ func (this *Thread) CurrentFrame() *Frame {
 func (this *Thread) IsStackEmpty() bool {
 	return this.stack.size == 0
 }
+
+func (this *Thread) StackSize() uint {
+	return this.stack.size
+}

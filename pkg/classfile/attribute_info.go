@@ -84,11 +84,19 @@ type LineNumberTableEntry struct {
 	lineNumber uint16
 }
 
+func (this *LineNumberTableEntry) GetStartPc() uint16 {
+	return this.startPc
+}
+
+func (this *LineNumberTableEntry) GetLineNumber() uint16 {
+	return this.lineNumber
+}
+
 type LineNumberTableAttribute struct {
 	lineNumberTable []*LineNumberTableEntry
 }
 
-func (this LineNumberTableAttribute) read(reader *ClassReader) {
+func (this *LineNumberTableAttribute) read(reader *ClassReader) {
 	lineNumberTableLength := reader.readUnit16()
 	this.lineNumberTable = make([]*LineNumberTableEntry, lineNumberTableLength)
 
@@ -122,7 +130,7 @@ type LocalVariableTableAttribute struct {
 	localVariableTable []*LocalVariableTableEntry
 }
 
-func (this LocalVariableTableAttribute) read(reader *ClassReader) {
+func (this *LocalVariableTableAttribute) read(reader *ClassReader) {
 	lineVariableTableLength := reader.readUnit16()
 	this.localVariableTable = make([]*LocalVariableTableEntry, lineVariableTableLength)
 
@@ -142,7 +150,7 @@ type SourceFileAttribute struct {
 	sourceFileIndex uint16
 }
 
-func (this SourceFileAttribute) read(reader *ClassReader) {
+func (this *SourceFileAttribute) read(reader *ClassReader) {
 	this.sourceFileIndex = reader.readUnit16()
 }
 
@@ -150,14 +158,14 @@ func (this SourceFileAttribute) read(reader *ClassReader) {
 type MarkerAttribute struct {
 }
 
-func (this MarkerAttribute) read(reader *ClassReader) {
+func (this *MarkerAttribute) read(reader *ClassReader) {
 }
 
 type DeprecatedAttribute struct {
 	MarkerAttribute
 }
 
-func (this DeprecatedAttribute) read(reader *ClassReader) {
+func (this *DeprecatedAttribute) read(reader *ClassReader) {
 	this.MarkerAttribute.read(reader)
 }
 
@@ -165,7 +173,7 @@ type SyntheticAttribute struct {
 	MarkerAttribute
 }
 
-func (this SyntheticAttribute) read(reader *ClassReader) {
+func (this *SyntheticAttribute) read(reader *ClassReader) {
 	this.MarkerAttribute.read(reader)
 }
 
@@ -175,6 +183,6 @@ type UnparsedAttribute struct {
 	attrValue []byte
 }
 
-func (this UnparsedAttribute) read(reader *ClassReader) {
+func (this *UnparsedAttribute) read(reader *ClassReader) {
 	this.attrValue = reader.readBytes(this.attrLen)
 }

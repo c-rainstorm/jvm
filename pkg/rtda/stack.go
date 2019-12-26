@@ -11,7 +11,9 @@ func (this *Stack) push(frame *Frame) {
 		log.Panic("java.lang.StackOverflowError")
 	}
 
-	if this._top != nil {
+	if this._top == nil {
+		frame.lower = nil
+	} else {
 		frame.lower = this._top
 	}
 

@@ -17,7 +17,7 @@
 - [x] 实现方法调用和返回指令
 - [x] 实现数组相关指令和字符串池
 - [x] 实现本地方法,如 `Objec.hashCode()`
-- [ ] 实现 `athrow` 指令进行异常处理
+- [x] 实现 `athrow` 指令进行异常处理
 - [ ] 实现 `System.out.println()`，并成功输出 `Hello world!`
 
 ## 下载

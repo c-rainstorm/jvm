@@ -95,3 +95,11 @@ func (this *OperandStack) PopSlot() Slot {
 func (this *OperandStack) GetRefFromTop(count uint) heap.Object {
 	return this.slots[this.size-count].ref
 }
+
+func (this *OperandStack) Clear() {
+	for _, slot := range this.slots {
+		slot.num = 0
+		slot.ref = nil
+	}
+	this.size = 0
+}

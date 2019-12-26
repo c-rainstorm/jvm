@@ -611,7 +611,7 @@ func New(opCode uint8) base.Instruction {
 	case OpcArrayLength:
 		return &references.ArrayLength{}
 	case OpcAThrow:
-		return nil
+		return &references.AThrow{}
 	case OpcCheckCast:
 		return &references.CheckCast{}
 	case OpcInstanceOf:

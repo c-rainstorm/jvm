@@ -107,6 +107,7 @@ func (this *ClassLoader) newClass(classfile *classfile.ClassFile) *ClassObject {
 	class.newConstantPool(classfile.ConstantPool())
 	class.newFields(classfile.Fields())
 	class.newMethods(classfile.Methods())
+	class.sourceFile = classfile.SourceFile()
 	class.classLoader = this
 	return class
 }

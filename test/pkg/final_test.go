@@ -82,3 +82,15 @@ func TestBoxTest(t *testing.T) {
 
 	gava.Main()
 }
+
+func TestExceptionTest(t *testing.T) {
+	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
+	os.Args = []string{
+		global.Gava,
+		"-cp", cp,
+		// "-v",
+		"me.rainstorm.jvm.ExceptionThrowTest", "a",
+	}
+
+	gava.Main()
+}
