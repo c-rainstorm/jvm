@@ -4,6 +4,7 @@ import (
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/rtda"
 	"jvm/pkg/rtda/heap"
+	"jvm/pkg/rtda/invoke"
 )
 
 // 1. 实例的构造函数
@@ -51,5 +52,5 @@ func (this *InvokeSpecial) Execute(frame *rtda.Frame) {
 		panic("java.lang.AbstractMethodError")
 	}
 
-	base.InvokeMethod(frame, resolvedMethod)
+	invoke.InvokeMethod(frame, resolvedMethod)
 }

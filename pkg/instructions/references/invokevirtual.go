@@ -6,6 +6,7 @@ import (
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/rtda"
 	"jvm/pkg/rtda/heap"
+	"jvm/pkg/rtda/invoke"
 )
 
 type InvokeVirtual struct {
@@ -73,5 +74,5 @@ func (this *InvokeVirtual) Execute(frame *rtda.Frame) {
 		panic("java.lang.AbstractMethodError")
 	}
 
-	base.InvokeMethod(frame, methodToBeInvoked)
+	invoke.InvokeMethod(frame, methodToBeInvoked)
 }

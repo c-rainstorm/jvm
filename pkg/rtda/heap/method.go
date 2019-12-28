@@ -104,6 +104,15 @@ func (this *Method) IsNative() bool {
 	return this.hasFlag(ACC_NATIVE)
 }
 
+func VoidVirtualMethod(maxStack, maxLocals uint) *Method {
+	return &Method{
+		ClassMember: ClassMember{name: "VoidVirtualMethod", descriptor: "()V", class: &ClassObject{name: "VoidVirtualClass"}},
+		maxStack:    maxStack,
+		maxLocals:   maxLocals,
+		code:        []byte{global.OpcReturn},
+	}
+}
+
 func (this *Method) InjectNativeCodeAttr(returnType string) {
 	this.maxStack = 4
 	this.maxLocals = this.ArgSlotCount()

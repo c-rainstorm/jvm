@@ -6,16 +6,15 @@ import (
 
 	"jvm/pkg/gava"
 	"jvm/pkg/global"
-	"jvm/pkg/instructions"
 )
 
 func TestIOTA(t *testing.T) {
-	t.Log(instructions.OpcIConst5)
-	t.Log(instructions.OpcFLoad3)
-	t.Log(instructions.OpcSALoad)
-	t.Log(instructions.OpcSAStore)
-	t.Log(instructions.OpcBreakPoint)
-	t.Log(instructions.OpcImpDep1)
+	t.Log(global.OpcIConst5)
+	t.Log(global.OpcFLoad3)
+	t.Log(global.OpcSALoad)
+	t.Log(global.OpcSAStore)
+	t.Log(global.OpcBreakPoint)
+	t.Log(global.OpcImpDep1)
 	t.Logf("当前指令未实现：%X", uint8(253))
 
 }

@@ -4,6 +4,7 @@ import (
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/rtda"
 	"jvm/pkg/rtda/heap"
+	"jvm/pkg/rtda/invoke"
 )
 
 type InvokeStatic struct {
@@ -26,5 +27,5 @@ func (this *InvokeStatic) Execute(frame *rtda.Frame) {
 		panic("java.lang.IncompatibleClassChangeError")
 	}
 
-	base.InvokeMethod(frame, method)
+	invoke.InvokeMethod(frame, method)
 }

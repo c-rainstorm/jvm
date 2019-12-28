@@ -4,6 +4,7 @@ import (
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/rtda"
 	"jvm/pkg/rtda/heap"
+	"jvm/pkg/rtda/invoke"
 )
 
 type InvokeInterface struct {
@@ -45,5 +46,5 @@ func (this *InvokeInterface) Execute(frame *rtda.Frame) {
 		panic("java.lang.illegalAccessError")
 	}
 
-	base.InvokeMethod(frame, methodToBeInvoked)
+	invoke.InvokeMethod(frame, methodToBeInvoked)
 }

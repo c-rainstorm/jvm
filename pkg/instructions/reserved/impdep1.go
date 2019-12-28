@@ -5,8 +5,10 @@ import (
 	"jvm/pkg/native"
 	"jvm/pkg/rtda"
 
+	_ "jvm/pkg/native/java/io"
 	_ "jvm/pkg/native/java/lang"
 	_ "jvm/pkg/native/sun/misc"
+	_ "jvm/pkg/native/sun/reflect"
 )
 
 // 使用该指令实现本地方法调用

@@ -2,12 +2,33 @@ package lang
 
 import (
 	"jvm/pkg/native"
+	"jvm/pkg/native/sun/misc"
 	"jvm/pkg/rtda"
 	"jvm/pkg/rtda/heap"
+	"jvm/pkg/rtda/invoke"
 )
 
 func init() {
 	native.MethodRegistry.Registry("java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", arrayCopy)
+	native.MethodRegistry.Registry("java/lang/System", "initProperties", "(Ljava/util/Properties;)Ljava/util/Properties;", initProperties)
+	// private static native void setOut0(PrintStream out);
+	native.MethodRegistry.Registry("java/lang/System", "setOut0", "(Ljava/io/PrintStream;)V", setOut0)
+
+}
+
+func setOut0(frame *rtda.Frame) {
+	SystemClass := frame.Method().Class().ClassLoader().LoadClass("java/lang/System")
+	outStream := frame.LocalVars().GetRef(0).(*heap.NormalObject)
+	SystemClass.SetField(nil, "out", "Ljava/io/PrintStream;", outStream)
+}
+
+func initProperties(frame *rtda.Frame) {
+	props := frame.LocalVars().GetRef(0).(*heap.NormalObject)
+	frame.OperandStack().PushRef(props)
+
+	for key, value := range misc.Properties {
+		invoke.SetProperty(frame.Thread(), props, key, value)
+	}
 }
 
 func arrayCopy(frame *rtda.Frame) {

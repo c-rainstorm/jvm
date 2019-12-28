@@ -3,6 +3,7 @@ package instructions
 import (
 	"log"
 
+	"jvm/pkg/global"
 	"jvm/pkg/instructions/base"
 	"jvm/pkg/instructions/comparisons"
 	"jvm/pkg/instructions/constants"
@@ -17,626 +18,418 @@ import (
 	"jvm/pkg/instructions/stores"
 )
 
-const (
-	OpcNop uint8 = iota // NOP 对应 0x00, 后面自增1
-	OpcAConstNull
-	OpcIConstM1
-	OpcIConst0
-	OpcIConst1
-	OpcIConst2
-	OpcIConst3
-	OpcIConst4
-	OpcIConst5
-	OpcLConst0
-	OpcLConst1
-	OpcFConst0
-	OpcFConst1
-	OpcFConst2
-	OpcDConst0
-	OpcDConst1
-	OpcBIPush
-	OpcSIPush
-	OpcLDC
-	OpcLDCW
-	OpcLDC2W
-	OpcILoad
-	OpcLLoad
-	OpcFLoad
-	OpcDLoad
-	OpcALoad
-	OpcILoad0
-	OpcILoad1
-	OpcILoad2
-	OpcILoad3
-	OpcLLoad0
-	OpcLLoad1
-	OpcLLoad2
-	OpcLLoad3
-	OpcFLoad0
-	OpcFLoad1
-	OpcFLoad2
-	OpcFLoad3
-	OpcDLoad0
-	OpcDLoad1
-	OpcDLoad2
-	OpcDLoad3
-	OpcALoad0
-	OpcALoad1
-	OpcALoad2
-	OpcALoad3
-	OpcIALoad
-	OpcLALoad
-	OpcFALoad
-	OpcDALoad
-	OpcAALoad
-	OpcBALoad
-	OpcCALoad
-	OpcSALoad
-	OpcIStore
-	OpcLStore
-	OpcFStore
-	OpcDStore
-	OpcAStore
-	OpcIStore0
-	OpcIStore1
-	OpcIStore2
-	OpcIStore3
-	OpcLStore0
-	OpcLStore1
-	OpcLStore2
-	OpcLStore3
-	OpcFStore0
-	OpcFStore1
-	OpcFStore2
-	OpcFStore3
-	OpcDStore0
-	OpcDStore1
-	OpcDStore2
-	OpcDStore3
-	OpcAStore0
-	OpcAStore1
-	OpcAStore2
-	OpcAStore3
-	OpcIAStore
-	OpcLAStore
-	OpcFAStore
-	OpcDAStore
-	OpcAAStore
-	OpcBAStore
-	OpcCAStore
-	OpcSAStore
-	OpcPOP
-	OpcPOP2
-	OpcDup
-	OpcDupX1
-	OpcDupX2
-	OpcDup2
-	OpcDup2X1
-	OpcDup2X2
-	OpcSwap
-	OpcIAdd
-	OpcLAdd
-	OpcFAdd
-	OpcDAdd
-	OpcISub
-	OpcLSub
-	OpcFSub
-	OpcDSub
-	OpcIMul
-	OpcLMul
-	OpcFMul
-	OpcDMul
-	OpcIDiv
-	OpcLDiv
-	OpcFDiv
-	OpcDDiv
-	OpcIRem
-	OpcLRem
-	OpcFRem
-	OpcDRem
-	OpcINeg
-	OpcLNeg
-	OpcFNeg
-	OpcDNeg
-	OpcIShL
-	OpcLShL
-	OpcIShR
-	OpcLShR
-	OpcIUShR
-	OpcLUShR
-	OpcIAnd
-	OpcLAnd
-	OpcIOr
-	OpcLOr
-	OpcIXOr
-	OpcLXOr
-	OpcIInc
-	OpcI2L
-	OpcI2F
-	OpcI2D
-	OpcL2I
-	OpcL2F
-	OpcL2D
-	OpcF2I
-	OpcF2L
-	OpcF2D
-	OpcD2I
-	OpcD2L
-	OpcD2F
-	OpcI2B
-	OpcI2C
-	OpcI2S
-	OpcLCmp
-	OpcFCmpL
-	OpcFCmpG
-	OpcDCmpL
-	OpcDCmpG
-	OpcIfEQ
-	OpcIfNE
-	OpcIfLT
-	OpcIfGE
-	OpcIfGT
-	OpcIfLE
-	OpcIfICmpEQ
-	OpcIfICmpNE
-	OpcIfICmpLT
-	OpcIfICmpGE
-	OpcIfICmpGT
-	OpcIfICmpLE
-	OpcIfACmpEQ
-	OpcIfACmpNE
-	OpcGOTO
-	OpcJSR
-	OpcRet
-	OpcTableSwitch
-	OpcLookupSwitch
-	OpcIReturn
-	OpcLReturn
-	OpcFReturn
-	OpcDReturn
-	OpcAReturn
-	OpcReturn
-	OpcGetStatic
-	OpcPutStatic
-	OpcGetField
-	OpcPutField
-	OpcInvokeVirtual
-	OpcInvokeSpecial
-	OpcInvokeStatic
-	OpcInvokeInterface
-	OpcInvokeDynamic
-	OpcNew
-	OpcNewArray
-	OpcANewArray
-	OpcArrayLength
-	OpcAThrow
-	OpcCheckCast
-	OpcInstanceOf
-	OpcMonitorEnter
-	OpcMonitorExit
-	OpcWide
-	OpcMultiANewArray
-	OpcIfNull
-	OpcIfNonNull
-	OpcGotoW
-	OpcJsrW
-	OpcBreakPoint
-	OpcImpDep1 = 0xFE
-	OpcImpDep2 = 0xFF
-)
-
 func New(opCode uint8) base.Instruction {
 	switch opCode {
-	case OpcNop:
+	case global.OpcNop:
 		return &constants.NOP{}
-	case OpcAConstNull:
+	case global.OpcAConstNull:
 		return &constants.AConstNull{}
-	case OpcIConstM1:
+	case global.OpcIConstM1:
 		return &constants.IConstM1{}
-	case OpcIConst0:
+	case global.OpcIConst0:
 		return &constants.IConst0{}
-	case OpcIConst1:
+	case global.OpcIConst1:
 		return &constants.IConst1{}
-	case OpcIConst2:
+	case global.OpcIConst2:
 		return &constants.IConst2{}
-	case OpcIConst3:
+	case global.OpcIConst3:
 		return &constants.IConst3{}
-	case OpcIConst4:
+	case global.OpcIConst4:
 		return &constants.IConst4{}
-	case OpcIConst5:
+	case global.OpcIConst5:
 		return &constants.IConst5{}
-	case OpcLConst0:
+	case global.OpcLConst0:
 		return &constants.LConst0{}
-	case OpcLConst1:
+	case global.OpcLConst1:
 		return &constants.LConst1{}
-	case OpcFConst0:
+	case global.OpcFConst0:
 		return &constants.FConst0{}
-	case OpcFConst1:
+	case global.OpcFConst1:
 		return &constants.FConst1{}
-	case OpcFConst2:
+	case global.OpcFConst2:
 		return &constants.FConst2{}
-	case OpcDConst0:
+	case global.OpcDConst0:
 		return &constants.DConst0{}
-	case OpcDConst1:
+	case global.OpcDConst1:
 		return &constants.DConst1{}
-	case OpcBIPush:
+	case global.OpcBIPush:
 		return &constants.BIPush{}
-	case OpcSIPush:
+	case global.OpcSIPush:
 		return &constants.SIPush{}
-	case OpcLDC:
+	case global.OpcLDC:
 		return &constants.LDC{}
-	case OpcLDCW:
+	case global.OpcLDCW:
 		return &constants.LDCW{}
-	case OpcLDC2W:
+	case global.OpcLDC2W:
 		return &constants.LDC2W{}
-	case OpcILoad:
+	case global.OpcILoad:
 		return &loads.ILoad{}
-	case OpcLLoad:
+	case global.OpcLLoad:
 		return &loads.LLoad{}
-	case OpcFLoad:
+	case global.OpcFLoad:
 		return &loads.FLoad{}
-	case OpcDLoad:
+	case global.OpcDLoad:
 		return &loads.DLoad{}
-	case OpcALoad:
+	case global.OpcALoad:
 		return &loads.ALoad{}
-	case OpcILoad0:
+	case global.OpcILoad0:
 		return &loads.ILoad0{}
-	case OpcILoad1:
+	case global.OpcILoad1:
 		return &loads.ILoad1{}
-	case OpcILoad2:
+	case global.OpcILoad2:
 		return &loads.ILoad2{}
-	case OpcILoad3:
+	case global.OpcILoad3:
 		return &loads.ILoad3{}
-	case OpcLLoad0:
+	case global.OpcLLoad0:
 		return &loads.LLoad0{}
-	case OpcLLoad1:
+	case global.OpcLLoad1:
 		return &loads.LLoad1{}
-	case OpcLLoad2:
+	case global.OpcLLoad2:
 		return &loads.LLoad2{}
-	case OpcLLoad3:
+	case global.OpcLLoad3:
 		return &loads.LLoad3{}
-	case OpcFLoad0:
+	case global.OpcFLoad0:
 		return &loads.FLoad0{}
-	case OpcFLoad1:
+	case global.OpcFLoad1:
 		return &loads.FLoad1{}
-	case OpcFLoad2:
+	case global.OpcFLoad2:
 		return &loads.FLoad2{}
-	case OpcFLoad3:
+	case global.OpcFLoad3:
 		return &loads.FLoad3{}
-	case OpcDLoad0:
+	case global.OpcDLoad0:
 		return &loads.DLoad0{}
-	case OpcDLoad1:
+	case global.OpcDLoad1:
 		return &loads.DLoad1{}
-	case OpcDLoad2:
+	case global.OpcDLoad2:
 		return &loads.DLoad2{}
-	case OpcDLoad3:
+	case global.OpcDLoad3:
 		return &loads.DLoad3{}
-	case OpcALoad0:
+	case global.OpcALoad0:
 		return &loads.ALoad0{}
-	case OpcALoad1:
+	case global.OpcALoad1:
 		return &loads.ALoad1{}
-	case OpcALoad2:
+	case global.OpcALoad2:
 		return &loads.ALoad2{}
-	case OpcALoad3:
+	case global.OpcALoad3:
 		return &loads.ALoad3{}
-	case OpcIALoad:
+	case global.OpcIALoad:
 		return &loads.IALoad{}
-	case OpcLALoad:
+	case global.OpcLALoad:
 		return &loads.LALoad{}
-	case OpcFALoad:
+	case global.OpcFALoad:
 		return &loads.FALoad{}
-	case OpcDALoad:
+	case global.OpcDALoad:
 		return &loads.DALoad{}
-	case OpcAALoad:
+	case global.OpcAALoad:
 		return &loads.AALoad{}
-	case OpcBALoad:
+	case global.OpcBALoad:
 		return &loads.BALoad{}
-	case OpcCALoad:
+	case global.OpcCALoad:
 		return &loads.CALoad{}
-	case OpcSALoad:
+	case global.OpcSALoad:
 		return &loads.SALoad{}
-	case OpcIStore:
+	case global.OpcIStore:
 		return &stores.IStore{}
-	case OpcLStore:
+	case global.OpcLStore:
 		return &stores.LStore{}
-	case OpcFStore:
+	case global.OpcFStore:
 		return &stores.FStore{}
-	case OpcDStore:
+	case global.OpcDStore:
 		return &stores.DStore{}
-	case OpcAStore:
+	case global.OpcAStore:
 		return &stores.AStore{}
-	case OpcIStore0:
+	case global.OpcIStore0:
 		return &stores.IStore0{}
-	case OpcIStore1:
+	case global.OpcIStore1:
 		return &stores.IStore1{}
-	case OpcIStore2:
+	case global.OpcIStore2:
 		return &stores.IStore2{}
-	case OpcIStore3:
+	case global.OpcIStore3:
 		return &stores.IStore3{}
-	case OpcLStore0:
+	case global.OpcLStore0:
 		return &stores.LStore0{}
-	case OpcLStore1:
+	case global.OpcLStore1:
 		return &stores.LStore1{}
-	case OpcLStore2:
+	case global.OpcLStore2:
 		return &stores.LStore2{}
-	case OpcLStore3:
+	case global.OpcLStore3:
 		return &stores.LStore3{}
-	case OpcFStore0:
+	case global.OpcFStore0:
 		return &stores.FStore0{}
-	case OpcFStore1:
+	case global.OpcFStore1:
 		return &stores.FStore1{}
-	case OpcFStore2:
+	case global.OpcFStore2:
 		return &stores.FStore2{}
-	case OpcFStore3:
+	case global.OpcFStore3:
 		return &stores.FStore3{}
-	case OpcDStore0:
+	case global.OpcDStore0:
 		return &stores.DStore0{}
-	case OpcDStore1:
+	case global.OpcDStore1:
 		return &stores.DStore1{}
-	case OpcDStore2:
+	case global.OpcDStore2:
 		return &stores.DStore2{}
-	case OpcDStore3:
+	case global.OpcDStore3:
 		return &stores.DStore3{}
-	case OpcAStore0:
+	case global.OpcAStore0:
 		return &stores.AStore0{}
-	case OpcAStore1:
+	case global.OpcAStore1:
 		return &stores.AStore1{}
-	case OpcAStore2:
+	case global.OpcAStore2:
 		return &stores.AStore2{}
-	case OpcAStore3:
+	case global.OpcAStore3:
 		return &stores.AStore3{}
-	case OpcIAStore:
+	case global.OpcIAStore:
 		return &stores.IAStore{}
-	case OpcLAStore:
+	case global.OpcLAStore:
 		return &stores.LAStore{}
-	case OpcFAStore:
+	case global.OpcFAStore:
 		return &stores.FAStore{}
-	case OpcDAStore:
+	case global.OpcDAStore:
 		return &stores.DAStore{}
-	case OpcAAStore:
+	case global.OpcAAStore:
 		return &stores.AAStore{}
-	case OpcBAStore:
+	case global.OpcBAStore:
 		return &stores.BAStore{}
-	case OpcCAStore:
+	case global.OpcCAStore:
 		return &stores.CAStore{}
-	case OpcSAStore:
+	case global.OpcSAStore:
 		return &stores.SAStore{}
-	case OpcPOP:
+	case global.OpcPOP:
 		return &stack.POP{}
-	case OpcPOP2:
+	case global.OpcPOP2:
 		return &stack.POP2{}
-	case OpcDup:
+	case global.OpcDup:
 		return &stack.Dup{}
-	case OpcDupX1:
+	case global.OpcDupX1:
 		return &stack.DupX1{}
-	case OpcDupX2:
+	case global.OpcDupX2:
 		return &stack.DupX2{}
-	case OpcDup2:
+	case global.OpcDup2:
 		return &stack.Dup2{}
-	case OpcDup2X1:
+	case global.OpcDup2X1:
 		return &stack.Dup2X1{}
-	case OpcDup2X2:
+	case global.OpcDup2X2:
 		return &stack.Dup2X2{}
-	case OpcSwap:
+	case global.OpcSwap:
 		return &stack.Swap{}
-	case OpcIAdd:
+	case global.OpcIAdd:
 		return &math.IAdd{}
-	case OpcLAdd:
+	case global.OpcLAdd:
 		return &math.LAdd{}
-	case OpcFAdd:
+	case global.OpcFAdd:
 		return &math.FAdd{}
-	case OpcDAdd:
+	case global.OpcDAdd:
 		return &math.DAdd{}
-	case OpcISub:
+	case global.OpcISub:
 		return &math.ISub{}
-	case OpcLSub:
+	case global.OpcLSub:
 		return &math.LSub{}
-	case OpcFSub:
+	case global.OpcFSub:
 		return &math.FSub{}
-	case OpcDSub:
+	case global.OpcDSub:
 		return &math.DSub{}
-	case OpcIMul:
+	case global.OpcIMul:
 		return &math.IMul{}
-	case OpcLMul:
+	case global.OpcLMul:
 		return &math.LMul{}
-	case OpcFMul:
+	case global.OpcFMul:
 		return &math.FMul{}
-	case OpcDMul:
+	case global.OpcDMul:
 		return &math.DMul{}
-	case OpcIDiv:
+	case global.OpcIDiv:
 		return &math.IDiv{}
-	case OpcLDiv:
+	case global.OpcLDiv:
 		return &math.LDiv{}
-	case OpcFDiv:
+	case global.OpcFDiv:
 		return &math.FDiv{}
-	case OpcDDiv:
+	case global.OpcDDiv:
 		return &math.DDiv{}
-	case OpcIRem:
+	case global.OpcIRem:
 		return &math.IRem{}
-	case OpcLRem:
+	case global.OpcLRem:
 		return &math.LRem{}
-	case OpcFRem:
+	case global.OpcFRem:
 		return &math.FRem{}
-	case OpcDRem:
+	case global.OpcDRem:
 		return &math.DRem{}
-	case OpcINeg:
+	case global.OpcINeg:
 		return &math.INeg{}
-	case OpcLNeg:
+	case global.OpcLNeg:
 		return &math.LNeg{}
-	case OpcFNeg:
+	case global.OpcFNeg:
 		return &math.FNeg{}
-	case OpcDNeg:
+	case global.OpcDNeg:
 		return &math.DNeg{}
-	case OpcIShL:
+	case global.OpcIShL:
 		return &math.IShL{}
-	case OpcLShL:
+	case global.OpcLShL:
 		return &math.LShL{}
-	case OpcIShR:
+	case global.OpcIShR:
 		return &math.IShR{}
-	case OpcLShR:
+	case global.OpcLShR:
 		return &math.LShR{}
-	case OpcIUShR:
+	case global.OpcIUShR:
 		return &math.IUShR{}
-	case OpcLUShR:
+	case global.OpcLUShR:
 		return &math.LUShR{}
-	case OpcIAnd:
+	case global.OpcIAnd:
 		return &math.IAnd{}
-	case OpcLAnd:
+	case global.OpcLAnd:
 		return &math.LAnd{}
-	case OpcIOr:
+	case global.OpcIOr:
 		return &math.IOr{}
-	case OpcLOr:
+	case global.OpcLOr:
 		return &math.LOr{}
-	case OpcIXOr:
+	case global.OpcIXOr:
 		return &math.IXOr{}
-	case OpcLXOr:
+	case global.OpcLXOr:
 		return &math.LXOr{}
-	case OpcIInc:
+	case global.OpcIInc:
 		return &math.IInc{}
-	case OpcI2L:
+	case global.OpcI2L:
 		return &conversions.I2L{}
-	case OpcI2F:
+	case global.OpcI2F:
 		return &conversions.I2F{}
-	case OpcI2D:
+	case global.OpcI2D:
 		return &conversions.I2D{}
-	case OpcL2I:
+	case global.OpcL2I:
 		return &conversions.L2I{}
-	case OpcL2F:
+	case global.OpcL2F:
 		return &conversions.L2F{}
-	case OpcL2D:
+	case global.OpcL2D:
 		return &conversions.L2D{}
-	case OpcF2I:
+	case global.OpcF2I:
 		return &conversions.F2I{}
-	case OpcF2L:
+	case global.OpcF2L:
 		return &conversions.F2L{}
-	case OpcF2D:
+	case global.OpcF2D:
 		return &conversions.F2D{}
-	case OpcD2I:
+	case global.OpcD2I:
 		return &conversions.D2L{}
-	case OpcD2L:
+	case global.OpcD2L:
 		return &conversions.D2L{}
-	case OpcD2F:
+	case global.OpcD2F:
 		return &conversions.D2F{}
-	case OpcI2B:
+	case global.OpcI2B:
 		return &conversions.I2B{}
-	case OpcI2C:
+	case global.OpcI2C:
 		return &conversions.I2C{}
-	case OpcI2S:
+	case global.OpcI2S:
 		return &conversions.I2S{}
-	case OpcLCmp:
+	case global.OpcLCmp:
 		return &comparisons.LCmp{}
-	case OpcFCmpL:
+	case global.OpcFCmpL:
 		return &comparisons.FCmpL{}
-	case OpcFCmpG:
+	case global.OpcFCmpG:
 		return &comparisons.FCmpG{}
-	case OpcDCmpL:
+	case global.OpcDCmpL:
 		return &comparisons.DCmpL{}
-	case OpcDCmpG:
+	case global.OpcDCmpG:
 		return &comparisons.DCmpG{}
-	case OpcIfEQ:
+	case global.OpcIfEQ:
 		return &comparisons.IfEQ{}
-	case OpcIfNE:
+	case global.OpcIfNE:
 		return &comparisons.IfNE{}
-	case OpcIfLT:
+	case global.OpcIfLT:
 		return &comparisons.IfLT{}
-	case OpcIfGE:
+	case global.OpcIfGE:
 		return &comparisons.IfGE{}
-	case OpcIfGT:
+	case global.OpcIfGT:
 		return &comparisons.IfGT{}
-	case OpcIfLE:
+	case global.OpcIfLE:
 		return &comparisons.IfLE{}
-	case OpcIfICmpEQ:
+	case global.OpcIfICmpEQ:
 		return &comparisons.IfICmpEQ{}
-	case OpcIfICmpNE:
+	case global.OpcIfICmpNE:
 		return &comparisons.IfICmpNE{}
-	case OpcIfICmpLT:
+	case global.OpcIfICmpLT:
 		return &comparisons.IfICmpLT{}
-	case OpcIfICmpGE:
+	case global.OpcIfICmpGE:
 		return &comparisons.IfICmpGE{}
-	case OpcIfICmpGT:
+	case global.OpcIfICmpGT:
 		return &comparisons.IfICmpGT{}
-	case OpcIfICmpLE:
+	case global.OpcIfICmpLE:
 		return &comparisons.IfICmpLE{}
-	case OpcIfACmpEQ:
+	case global.OpcIfACmpEQ:
 		return &comparisons.IfACmpEQ{}
-	case OpcIfACmpNE:
+	case global.OpcIfACmpNE:
 		return &comparisons.IfACmpNE{}
-	case OpcGOTO:
+	case global.OpcGOTO:
 		return &control.GOTO{}
-	case OpcJSR:
+	case global.OpcJSR:
 		return nil
-	case OpcRet:
+	case global.OpcRet:
 		log.Panic("ret not found")
 		return nil
-	case OpcTableSwitch:
+	case global.OpcTableSwitch:
 		return &control.TableSwitch{}
-	case OpcLookupSwitch:
+	case global.OpcLookupSwitch:
 		return &control.LookupSwitch{}
-	case OpcIReturn:
+	case global.OpcIReturn:
 		return &control.IReturn{}
-	case OpcLReturn:
+	case global.OpcLReturn:
 		return &control.LReturn{}
-	case OpcFReturn:
+	case global.OpcFReturn:
 		return &control.FReturn{}
-	case OpcDReturn:
+	case global.OpcDReturn:
 		return &control.DReturn{}
-	case OpcAReturn:
+	case global.OpcAReturn:
 		return &control.AReturn{}
-	case OpcReturn:
+	case global.OpcReturn:
 		return &control.Return{}
-	case OpcGetStatic:
+	case global.OpcGetStatic:
 		return &references.GetStatic{}
-	case OpcPutStatic:
+	case global.OpcPutStatic:
 		return &references.PutStatic{}
-	case OpcGetField:
+	case global.OpcGetField:
 		return &references.GetField{}
-	case OpcPutField:
+	case global.OpcPutField:
 		return &references.PutField{}
-	case OpcInvokeVirtual:
+	case global.OpcInvokeVirtual:
 		return &references.InvokeVirtual{}
-	case OpcInvokeSpecial:
+	case global.OpcInvokeSpecial:
 		return &references.InvokeSpecial{}
-	case OpcInvokeStatic:
+	case global.OpcInvokeStatic:
 		return &references.InvokeStatic{}
-	case OpcInvokeInterface:
+	case global.OpcInvokeInterface:
 		return &references.InvokeInterface{}
-	case OpcInvokeDynamic:
+	case global.OpcInvokeDynamic:
 		return nil
-	case OpcNew:
+	case global.OpcNew:
 		return &references.New{}
-	case OpcNewArray:
+	case global.OpcNewArray:
 		return &references.NewArray{}
-	case OpcANewArray:
+	case global.OpcANewArray:
 		return &references.ANewArray{}
-	case OpcArrayLength:
+	case global.OpcArrayLength:
 		return &references.ArrayLength{}
-	case OpcAThrow:
+	case global.OpcAThrow:
 		return &references.AThrow{}
-	case OpcCheckCast:
+	case global.OpcCheckCast:
 		return &references.CheckCast{}
-	case OpcInstanceOf:
+	case global.OpcInstanceOf:
 		return &references.InstanceOf{}
-	case OpcMonitorEnter:
+	case global.OpcMonitorEnter:
 		return nil
-	case OpcMonitorExit:
+	case global.OpcMonitorExit:
 		return nil
-	case OpcWide:
+	case global.OpcWide:
 		return &extend.Wide{}
-	case OpcMultiANewArray:
+	case global.OpcMultiANewArray:
 		return &extend.MultiANewArray{}
-	case OpcIfNull:
+	case global.OpcIfNull:
 		return &extend.IfNull{}
-	case OpcIfNonNull:
+	case global.OpcIfNonNull:
 		return &extend.IfNonNull{}
-	case OpcGotoW:
+	case global.OpcGotoW:
 		return &extend.GOTOW{}
-	case OpcJsrW:
+	case global.OpcJsrW:
 		return nil
-	case OpcBreakPoint:
+	case global.OpcBreakPoint:
 		return nil
-	case OpcImpDep1:
+	case global.OpcImpDep1:
 		return &reserved.ImpDep1{}
-	case OpcImpDep2:
+	case global.OpcImpDep2:
 		return nil
 	default:
 		log.Panicf("当前指令未实现：%X", opCode)
