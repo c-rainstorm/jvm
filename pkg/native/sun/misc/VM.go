@@ -6,6 +6,7 @@ import (
 	"jvm/pkg/global"
 	"jvm/pkg/native"
 	"jvm/pkg/rtda"
+	"jvm/pkg/rtda/heap"
 	"jvm/pkg/rtda/invoke"
 )
 
@@ -15,11 +16,17 @@ func init() {
 }
 
 func initialize(frame *rtda.Frame) {
-	systemClass := frame.Method().Class().ClassLoader().LoadClass("java/lang/System")
-	//  private static void initializeSystemClass();
-	initializeSystemClassMethod := systemClass.GetMethod("initializeSystemClass", "()V")
-
-	invoke.InvokeMethod(frame, initializeSystemClassMethod)
+	// systemClass := frame.Method().Class().ClassLoader().LoadClass("java/lang/System")
+	// //  private static void initializeSystemClass();
+	// initializeSystemClassMethod := systemClass.GetMethod("initializeSystemClass", "()V")
+	//
+	// invoke.InvokeMethod(frame, initializeSystemClassMethod)
+	// 添加一个元素到 savedProps
+	VM := frame.Method().Class()
+	savedProps := VM.GetField(nil, "savedProps", "Ljava/util/Properties;").(*heap.NormalObject)
+	for key, value := range Properties {
+		invoke.SetProperty(frame.Thread(), savedProps, key, value)
+	}
 }
 
 var Properties = make(map[string]string)

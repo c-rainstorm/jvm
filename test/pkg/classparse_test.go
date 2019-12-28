@@ -23,7 +23,7 @@ func TestClassParse(t *testing.T) {
 	os.Args = []string{
 		global.Gava,
 		"-cp", cp,
-		"-v",
+		// "-v",
 		"me.rainstorm.jvm.ClassFileParseTest", "arg1", "arg2",
 	}
 
@@ -35,7 +35,7 @@ func TestInterface1Parse(t *testing.T) {
 	os.Args = []string{
 		global.Gava,
 		"-cp", cp,
-		"-v",
+		// "-v",
 		"me.rainstorm.jvm.Interface1", "arg1", "arg2",
 	}
 
@@ -47,7 +47,7 @@ func TestInterface2Parse(t *testing.T) {
 	os.Args = []string{
 		global.Gava,
 		"-cp", cp,
-		"-v",
+		// "-v",
 		"me.rainstorm.jvm.Interface2", "arg1", "arg2",
 	}
 
@@ -59,7 +59,7 @@ func TestAnnoParse(t *testing.T) {
 	os.Args = []string{
 		global.Gava,
 		"-cp", cp,
-		"-v",
+		// "-v",
 		"me.rainstorm.jvm.Anno", "arg1", "arg2",
 	}
 

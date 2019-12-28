@@ -19,7 +19,7 @@ func TestIOTA(t *testing.T) {
 
 }
 
-func TestInterpret(t *testing.T) {
+func TestGauss(t *testing.T) {
 	cp := "/Users/chen/workspace/go/src/jvm/test/data/class"
 	os.Args = []string{
 		global.Gava,

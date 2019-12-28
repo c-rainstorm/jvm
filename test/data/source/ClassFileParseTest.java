@@ -14,7 +14,7 @@ public final class ClassFileParseTest implements Interface1, Interface2 {
     public static void main(String[] args) throws RuntimeException {
         System.out.println("Hello world!");
         ClassFileParseTest test = new ClassFileParseTest();
-        test.sayHi();
-        test.saySomething();
+        ((Interface1)test).sayHi();
+        ((Interface2)test).saySomething();
     }
 }

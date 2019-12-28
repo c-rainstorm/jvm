@@ -36,7 +36,7 @@ func (this *InvokeInterface) Execute(frame *rtda.Frame) {
 		panic("java.lang.IncompatibleClassChangeError")
 	}
 
-	methodToBeInvoked := heap.LookupMethodInClass(ref.Class(), methodRef.Name(), methodRef.Descriptor())
+	methodToBeInvoked := heap.LookupMethodInInterface(ref.Class(), methodRef.Name(), methodRef.Descriptor())
 
 	if methodToBeInvoked == nil || methodToBeInvoked.IsAbstract() {
 		panic("java.lang.AbstractMethodError")

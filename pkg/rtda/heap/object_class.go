@@ -440,7 +440,7 @@ func lookupMethod(kls *ClassObject, name string, descriptor string) *Method {
 
 func lookupMethodInInterfaces(interfaces []*ClassObject, name string, descriptor string) *Method {
 	for _, inf := range interfaces {
-		method := lookupMethodInInterface(inf, name, descriptor)
+		method := LookupMethodInInterface(inf, name, descriptor)
 		if method != nil {
 			return method
 		}
@@ -448,7 +448,7 @@ func lookupMethodInInterfaces(interfaces []*ClassObject, name string, descriptor
 	return nil
 }
 
-func lookupMethodInInterface(inf *ClassObject, name string, descriptor string) *Method {
+func LookupMethodInInterface(inf *ClassObject, name string, descriptor string) *Method {
 	for _, method := range inf.methods {
 		if method.name == name && method.descriptor == descriptor {
 			return method

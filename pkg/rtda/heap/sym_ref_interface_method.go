@@ -8,6 +8,10 @@ type InterfaceMethodSymRef struct {
 	MethodSymRef
 }
 
+func (this *InterfaceMethodSymRef) ResolvedMethod() *Method {
+	return this.ResolvedInterfaceMethod()
+}
+
 func (this *InterfaceMethodSymRef) ResolvedInterfaceMethod() *Method {
 	if this.method == nil {
 		this.resolveInterfaceMethodRef()
@@ -24,7 +28,7 @@ func (this *InterfaceMethodSymRef) resolveInterfaceMethodRef() {
 		panic("java.lang.IncompatibleClassChangeError")
 	}
 
-	method := lookupMethodInInterface(interfaceHasThisMethod, this.name, this.descriptor)
+	method := LookupMethodInInterface(interfaceHasThisMethod, this.name, this.descriptor)
 
 	if method == nil {
 		panic("java.lang.NoSuchFieldError")

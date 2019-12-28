@@ -15,7 +15,7 @@ func TestDirEntry(t *testing.T) {
 		global.Gava,
 		"-Xjre", filepath.Join(os.Getenv(global.JavaHome), "jre"),
 		"-cp", cp,
-		"-v",
+		// "-v",
 		"me.rainstorm.jvm.HelloWorld", "hello world!",
 	}
 

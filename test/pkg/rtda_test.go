@@ -37,7 +37,7 @@ func TestLocalVars(t *testing.T) {
 		t.Errorf("target: %v, actual: %v", longVal, longResult)
 	}
 
-	doubleVal := float64(3.1445678765456783456)
+	doubleVal := 3.1445678765456783456
 	localVars.SetDouble(4, doubleVal)
 	doubleResult := localVars.GetDouble(4)
 	t.Logf("double: %v", doubleResult)
@@ -81,7 +81,7 @@ func TestOperandStack(t *testing.T) {
 		t.Errorf("target: %v, actual: %v", longVal, longResult)
 	}
 
-	doubleVal := float64(3.1445678765456783456)
+	doubleVal := 3.1445678765456783456
 	operandStack.PushDouble(doubleVal)
 	doubleResult := operandStack.PopDouble()
 	t.Logf("double: %v", doubleResult)
@@ -103,7 +103,7 @@ func TestClassAndField(t *testing.T) {
 	os.Args = []string{
 		global.Gava,
 		"-cp", cp,
-		"-v",
+		// "-v",
 		"me.rainstorm.jvm.MyObject",
 	}
 
@@ -115,7 +115,7 @@ func TestMethodInvoke(t *testing.T) {
 	os.Args = []string{
 		global.Gava,
 		"-cp", cp,
-		"-v",
+		// "-v",
 		"me.rainstorm.jvm.InvokeTest",
 	}
 

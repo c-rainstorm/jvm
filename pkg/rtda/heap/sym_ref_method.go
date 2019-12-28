@@ -9,6 +9,10 @@ type MethodSymRef struct {
 	method *Method
 }
 
+type IMethodSymRef interface {
+	ResolvedMethod() *Method
+}
+
 func (this *MethodSymRef) ResolvedMethod() *Method {
 	if this.method == nil {
 		this.resolveMethodRef()
